@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -58,10 +59,10 @@ export function StockCard({ stock, rank }: Props) {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-muted-foreground">#{rank}</span>
-            <div>
+            <Link href={`/stock/${stock.ticker}`} className="hover:underline underline-offset-4">
               <CardTitle className="text-base">{stock.name}</CardTitle>
               <span className="text-xs text-muted-foreground">{stock.ticker}</span>
-            </div>
+            </Link>
           </div>
           <div className="flex flex-col items-end gap-1">
             <Badge variant="outline" className={cn('text-xs', risk.className)}>

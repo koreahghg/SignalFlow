@@ -12,8 +12,8 @@ export function Header() {
           <Link href="/" className="transition-colors hover:text-foreground">
             오늘 추천
           </Link>
-          <Link href="/stocks" className="transition-colors hover:text-foreground">
-            종목 기록
+          <Link href="/history" className="transition-colors hover:text-foreground">
+            추천 내역
           </Link>
         </nav>
       </div>
