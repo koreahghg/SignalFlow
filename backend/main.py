@@ -9,6 +9,7 @@ from sqlalchemy import distinct
 import models
 import schemas
 from db import engine, get_db
+from routers import stock as stock_router
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -23,6 +24,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(stock_router.router)
 
 
 @app.get("/api/recommendations/today", response_model=list[schemas.StockRecommendationSchema])
