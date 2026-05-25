@@ -1,9 +1,13 @@
+import Link from 'next/link'
 import { unstable_cache } from 'next/cache'
+import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { Pin } from 'lucide-react'
+import { Pin, Plus } from 'lucide-react'
 
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date)
+const ADMIN_EMAIL = 'koreahghg@gmail.com'
+
+function formatDate(date: Date | string) {
+  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(date))
 }
 
 const getNotices = unstable_cache(
@@ -21,14 +25,26 @@ const getNotices = unstable_cache(
 )
 
 export default async function NoticePage() {
-  const notices = await getNotices()
+  const [notices, session] = await Promise.all([getNotices(), auth()])
+  const isAdmin = session?.user?.email === ADMIN_EMAIL
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">Notice</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight">공지사항</h1>
-        <p className="mt-0.5 text-sm text-muted-foreground">총 {notices.length}개</p>
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">Notice</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight">공지사항</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">총 {notices.length}개</p>
+        </div>
+        {isAdmin && (
+          <Link
+            href="/admin/notices/new"
+            className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" />
+            공지 작성
+          </Link>
+        )}
       </div>
 
       {notices.length === 0 ? (
