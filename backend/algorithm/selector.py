@@ -14,6 +14,8 @@ from .price_calculator import (
     calc_targets,
     calc_force_sell_time,
     calc_risk_level,
+    calc_atr_price_levels,
+    PriceLevel,
 )
 
 
@@ -28,6 +30,12 @@ class Recommendation:
     stop_loss_price: int
     target1_price: int
     target2_price: int
+    trailing_stop_offset: int
+    risk_reward_1: float
+    risk_reward_2: float
+    atr: float
+    atr_pct: float
+    volatility: str
     force_sell_time: str
     risk_level: str
     volume_ratio: float
@@ -71,8 +79,12 @@ def select_top3(candidates: List[Dict]) -> List[Recommendation]:
         last_close = candles[-1].close
 
         entry = calc_entry_price(last_close, s.pattern, s.resistance_level)
-        stop = calc_stop_loss(entry, s.support_level)
-        t1, t2 = calc_targets(entry, s.pattern)
+        levels: PriceLevel = calc_atr_price_levels(
+            candles=candles,
+            entry=entry,
+            pattern=s.pattern,
+            support=s.support_level,
+        )
         force_sell = calc_force_sell_time(s.total_score)
         risk = calc_risk_level(s.total_score, s.volume_ratio, s.rsi)
 
@@ -87,10 +99,16 @@ def select_top3(candidates: List[Dict]) -> List[Recommendation]:
                 "news": s.news_score,
             },
             pattern=s.pattern,
-            entry_price=entry,
-            stop_loss_price=stop,
-            target1_price=t1,
-            target2_price=t2,
+            entry_price=levels.entry,
+            stop_loss_price=levels.stop_loss,
+            target1_price=levels.target1,
+            target2_price=levels.target2,
+            trailing_stop_offset=levels.trailing_stop_offset,
+            risk_reward_1=levels.risk_reward_1,
+            risk_reward_2=levels.risk_reward_2,
+            atr=levels.atr,
+            atr_pct=levels.atr_pct,
+            volatility=levels.volatility,
             force_sell_time=force_sell,
             risk_level=risk,
             volume_ratio=s.volume_ratio,
