@@ -15,6 +15,9 @@ export function Header() {
           <Link href="/history" className="transition-colors hover:text-foreground">
             추천 내역
           </Link>
+          <Link href="/stats" className="transition-colors hover:text-foreground">
+            통계
+          </Link>
         </nav>
       </div>
       <Separator />

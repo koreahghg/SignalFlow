@@ -1,4 +1,5 @@
 import { MarketStatus } from '@/components/dashboard/MarketStatus'
+import { AllocationCalculator } from '@/components/dashboard/AllocationCalculator'
 import { StockCard } from '@/components/stock/StockCard'
 import { formatDate } from '@/lib/utils'
 import type { StockRecommendation } from '@/types/stock'
@@ -120,6 +121,9 @@ export default function HomePage() {
           <StockCard key={stock.id} stock={stock} rank={i + 1} />
         ))}
       </div>
+
+      {/* 자금 배분 계산기 */}
+      <AllocationCalculator stocks={mockStocks} />
 
       {/* 면책 고지 */}
       <p className="border-t border-border pt-4 text-center text-xs text-muted-foreground">
