@@ -1,12 +1,18 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Header } from '@/components/layout/Header'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
+const gmarketSans = localFont({
+  src: [
+    { path: '../../public/fonts/GmarketSansLight.woff', weight: '300', style: 'normal' },
+    { path: '../../public/fonts/GmarketSansMedium.woff', weight: '500', style: 'normal' },
+    { path: '../../public/fonts/GmarketSansBold.woff', weight: '700', style: 'normal' },
+  ],
+  variable: '--font-sans',
+  display: 'swap',
 })
 
 const geistMono = Geist_Mono({
@@ -25,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko" className={`${geistSans.variable} ${geistMono.variable} dark`}>
+    <html lang="ko" className={`${gmarketSans.variable} ${geistMono.variable} dark`}>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <TooltipProvider>
           <Header />
