@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn, formatDate, formatKRW, formatPercent } from '@/lib/utils'
 import type { StockRecommendation } from '@/types/stock'
+import StockChart from '@/components/stock/StockChart'
 
 const riskConfig = {
   low: { label: '저위험', className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
@@ -96,12 +97,14 @@ export default async function StockDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* 차트 자리 */}
-      <div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-border bg-muted/20">
-        <p className="text-sm text-muted-foreground">
-          차트 준비 중 — TradingView 연동 예정
-        </p>
-      </div>
+      {/* 차트 */}
+      <StockChart
+        ticker={latest.ticker}
+        entryPrice={latest.entryPrice}
+        stopLossPrice={latest.stopLossPrice}
+        target1Price={latest.target1Price}
+        target2Price={latest.target2Price}
+      />
 
       {/* 최근 추천 상세 */}
       <Card className="border-border bg-card">

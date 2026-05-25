@@ -1,7 +1,7 @@
 import uuid
 from datetime import date as date_type
 
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import distinct
@@ -81,6 +81,30 @@ def get_stock_history(ticker: str, db: Session = Depends(get_db)):
         .order_by(models.StockRecommendation.date.desc())
         .all()
     )
+
+
+@app.get("/api/stocks/{ticker}/candles")
+def get_stock_candles(
+    ticker: str,
+    days: int = Query(default=60, ge=10, le=200),
+):
+    """종목 일봉 캔들 데이터. FinanceDataReader 기반."""
+    try:
+        from services.stock_data import get_daily_candles
+        candles = get_daily_candles(ticker, days=days)
+        return [
+            {
+                "date": c.date,
+                "open": c.open,
+                "high": c.high,
+                "low": c.low,
+                "close": c.close,
+                "volume": c.volume,
+            }
+            for c in candles
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/recommendations", response_model=schemas.StockRecommendationSchema, status_code=201)
