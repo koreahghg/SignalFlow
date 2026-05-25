@@ -1,4 +1,6 @@
+import asyncio
 import uuid
+from contextlib import asynccontextmanager
 from datetime import date as date_type
 
 from fastapi import FastAPI, Depends, HTTPException, Query
@@ -12,10 +14,24 @@ from db import engine, get_db
 from routers import stock as stock_router
 from routers import volume as volume_router
 from routers import backtest as backtest_router
+from routers import websocket as ws_router
 
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="SignalFlow API", version="0.1.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    from services.price_feed import price_feed_task
+    task = asyncio.create_task(price_feed_task())
+    yield
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+
+
+app = FastAPI(title="SignalFlow API", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,6 +46,7 @@ app.add_middleware(
 app.include_router(stock_router.router)
 app.include_router(volume_router.router)
 app.include_router(backtest_router.router)
+app.include_router(ws_router.router)
 
 
 @app.get("/api/recommendations/today", response_model=list[schemas.StockRecommendationSchema])
