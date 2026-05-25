@@ -1,3 +1,4 @@
+import { MarketStatus } from '@/components/dashboard/MarketStatus'
 import { StockCard } from '@/components/stock/StockCard'
 import { formatDate } from '@/lib/utils'
 import type { StockRecommendation } from '@/types/stock'
@@ -6,7 +7,7 @@ import type { StockRecommendation } from '@/types/stock'
 const mockStocks: StockRecommendation[] = [
   {
     id: '1',
-    date: '2026-05-24',
+    date: '2026-05-25',
     ticker: '005930',
     name: '삼성전자',
     entryPrice: 75000,
@@ -22,7 +23,7 @@ const mockStocks: StockRecommendation[] = [
   },
   {
     id: '2',
-    date: '2026-05-24',
+    date: '2026-05-25',
     ticker: '247540',
     name: '에코프로비엠',
     entryPrice: 185000,
@@ -38,7 +39,7 @@ const mockStocks: StockRecommendation[] = [
   },
   {
     id: '3',
-    date: '2026-05-24',
+    date: '2026-05-25',
     ticker: '035720',
     name: '카카오',
     entryPrice: 42000,
@@ -57,20 +58,71 @@ const mockStocks: StockRecommendation[] = [
 const today = new Date().toISOString().split('T')[0]
 
 export default function HomePage() {
+  const avgUpside =
+    mockStocks.reduce((sum, s) => {
+      return sum + ((s.target1Price - s.entryPrice) / s.entryPrice) * 100
+    }, 0) / mockStocks.length
+
+  const avgDownside =
+    mockStocks.reduce((sum, s) => {
+      return sum + ((s.stopLossPrice - s.entryPrice) / s.entryPrice) * 100
+    }, 0) / mockStocks.length
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">오늘의 추천 종목</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{formatDate(today)} 기준 · 최대 3종목</p>
+      {/* 장 상태 배너 */}
+      <MarketStatus />
+
+      {/* 헤더 */}
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">Daily Picks</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight">오늘의 추천 종목</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">{formatDate(today)} 기준</p>
+        </div>
+        <div className="hidden sm:flex items-center gap-4 text-right">
+          <div>
+            <p className="text-xs text-muted-foreground">평균 목표 수익</p>
+            <p className="text-lg font-bold text-emerald-400">+{avgUpside.toFixed(1)}%</p>
+          </div>
+          <div className="h-8 w-px bg-border" />
+          <div>
+            <p className="text-xs text-muted-foreground">평균 손절폭</p>
+            <p className="text-lg font-bold text-red-400">{avgDownside.toFixed(1)}%</p>
+          </div>
+          <div className="h-8 w-px bg-border" />
+          <div>
+            <p className="text-xs text-muted-foreground">종목 수</p>
+            <p className="text-lg font-bold">{mockStocks.length} / 3</p>
+          </div>
+        </div>
       </div>
 
+      {/* 모바일 통계 */}
+      <div className="grid grid-cols-3 gap-2 sm:hidden">
+        <div className="rounded-lg border border-border bg-card/50 px-3 py-2 text-center">
+          <p className="text-xs text-muted-foreground">목표 수익</p>
+          <p className="text-sm font-bold text-emerald-400">+{avgUpside.toFixed(1)}%</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card/50 px-3 py-2 text-center">
+          <p className="text-xs text-muted-foreground">손절폭</p>
+          <p className="text-sm font-bold text-red-400">{avgDownside.toFixed(1)}%</p>
+        </div>
+        <div className="rounded-lg border border-border bg-card/50 px-3 py-2 text-center">
+          <p className="text-xs text-muted-foreground">종목 수</p>
+          <p className="text-sm font-bold">{mockStocks.length} / 3</p>
+        </div>
+      </div>
+
+      {/* 종목 카드 그리드 */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {mockStocks.map((stock, i) => (
           <StockCard key={stock.id} stock={stock} rank={i + 1} />
         ))}
       </div>
 
-      <p className="text-center text-xs text-muted-foreground">
+      {/* 면책 고지 */}
+      <p className="border-t border-border pt-4 text-center text-xs text-muted-foreground">
         본 정보는 투자 참고용이며, 투자 손익에 대한 책임은 투자자 본인에게 있습니다.
       </p>
     </div>
