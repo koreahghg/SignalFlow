@@ -3,6 +3,9 @@ import uuid
 from contextlib import asynccontextmanager
 from datetime import date as date_type
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -15,6 +18,7 @@ from routers import stock as stock_router
 from routers import volume as volume_router
 from routers import backtest as backtest_router
 from routers import websocket as ws_router
+from routers import notify as notify_router
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -47,6 +51,7 @@ app.include_router(stock_router.router)
 app.include_router(volume_router.router)
 app.include_router(backtest_router.router)
 app.include_router(ws_router.router)
+app.include_router(notify_router.router)
 
 
 @app.get("/api/recommendations/today", response_model=list[schemas.StockRecommendationSchema])
