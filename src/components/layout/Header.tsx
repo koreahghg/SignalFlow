@@ -1,13 +1,17 @@
 import Link from 'next/link'
 import { Separator } from '@/components/ui/separator'
+import { ConnectionStatus } from '@/components/common/ConnectionStatus'
 
 export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <Link href="/" className="text-lg font-bold tracking-tight text-primary">
-          SignalFlow
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="text-lg font-bold tracking-tight text-primary">
+            SignalFlow
+          </Link>
+          <ConnectionStatus />
+        </div>
         <nav className="flex items-center gap-4 text-sm text-muted-foreground">
           <Link href="/" className="transition-colors hover:text-foreground">
             오늘 추천

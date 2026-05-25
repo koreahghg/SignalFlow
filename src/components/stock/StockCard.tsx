@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { cn, formatKRW } from '@/lib/utils'
 import type { StockRecommendation } from '@/types/stock'
+import { LivePrice } from '@/components/stock/LivePrice'
 
 const riskConfig = {
   low: { label: '저위험', className: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400' },
@@ -119,6 +120,15 @@ export function StockCard({ stock, rank }: Props) {
             <p className="leading-relaxed text-muted-foreground">{stock.newsAnalysis}</p>
           </div>
         </div>
+
+        {/* 실시간 현재가 */}
+        <LivePrice
+          ticker={stock.ticker}
+          entryPrice={stock.entryPrice}
+          target1Price={stock.target1Price}
+          target2Price={stock.target2Price}
+          stopLossPrice={stock.stopLossPrice}
+        />
       </CardContent>
     </Card>
   )

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Geist_Mono } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
-import { TooltipProvider } from '@/components/ui/tooltip'
+import { Providers } from '@/components/layout/Providers'
 import { Header } from '@/components/layout/Header'
 
 const gmarketSans = localFont({
@@ -33,10 +33,10 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${gmarketSans.variable} ${geistMono.variable} dark`}>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <TooltipProvider>
+        <Providers>
           <Header />
           <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
-        </TooltipProvider>
+        </Providers>
       </body>
     </html>
   )
