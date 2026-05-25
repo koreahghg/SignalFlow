@@ -1,8 +1,12 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Separator } from '@/components/ui/separator'
 import { ConnectionStatus } from '@/components/common/ConnectionStatus'
+import { auth } from '@/auth'
 
-export function Header() {
+export async function Header() {
+  const session = await auth()
+
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
@@ -28,6 +32,26 @@ export function Header() {
           <Link href="/volume" className="transition-colors hover:text-foreground">
             거래량
           </Link>
+          <Link href="/notice" className="transition-colors hover:text-foreground">
+            공지사항
+          </Link>
+          <Link href="/inquiry" className="transition-colors hover:text-foreground">
+            문의
+          </Link>
+
+          {session?.user && (
+            <Link href="/mypage" className="flex items-center gap-2 border-l border-border pl-4">
+              {session.user.image && (
+                <Image
+                  src={session.user.image}
+                  alt={session.user.name ?? ''}
+                  width={28}
+                  height={28}
+                  className="rounded-full transition-opacity hover:opacity-80"
+                />
+              )}
+            </Link>
+          )}
         </nav>
       </div>
       <Separator />
