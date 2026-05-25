@@ -18,6 +18,9 @@ export function Header() {
           <Link href="/stats" className="transition-colors hover:text-foreground">
             통계
           </Link>
+          <Link href="/backtest" className="transition-colors hover:text-foreground">
+            백테스트
+          </Link>
           <Link href="/volume" className="transition-colors hover:text-foreground">
             거래량
           </Link>
