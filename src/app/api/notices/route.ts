@@ -30,5 +30,6 @@ export async function POST(req: Request) {
   })
 
   revalidatePath('/notice')
+  revalidatePath('/')
   return NextResponse.json(notice, { status: 201 })
 }

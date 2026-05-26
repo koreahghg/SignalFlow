@@ -1,8 +1,28 @@
+import { unstable_cache } from 'next/cache'
 import { MarketStatus } from '@/components/dashboard/MarketStatus'
 import { AllocationCalculator } from '@/components/dashboard/AllocationCalculator'
+import { NewNoticeBanner } from '@/components/dashboard/NewNoticeBanner'
 import { StockCard } from '@/components/stock/StockCard'
 import { formatDate } from '@/lib/utils'
+import { prisma } from '@/lib/prisma'
 import type { StockRecommendation } from '@/types/stock'
+
+const getRecentNotice = unstable_cache(
+  async () => {
+    try {
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
+      return await prisma.notice.findFirst({
+        where: { createdAt: { gte: since } },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, title: true },
+      })
+    } catch {
+      return null
+    }
+  },
+  ['recent-notice'],
+  { revalidate: 300 },
+)
 
 // TODO: API 연동 후 제거
 const mockStocks: StockRecommendation[] = [
@@ -58,7 +78,9 @@ const mockStocks: StockRecommendation[] = [
 
 const today = new Date().toISOString().split('T')[0]
 
-export default function HomePage() {
+export default async function HomePage() {
+  const recentNotice = await getRecentNotice()
+
   const avgUpside =
     mockStocks.reduce((sum, s) => {
       return sum + ((s.target1Price - s.entryPrice) / s.entryPrice) * 100
@@ -71,6 +93,9 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6">
+      {/* 신규 공지 배너 */}
+      {recentNotice && <NewNoticeBanner id={recentNotice.id} title={recentNotice.title} />}
+
       {/* 장 상태 배너 */}
       <MarketStatus />
 
