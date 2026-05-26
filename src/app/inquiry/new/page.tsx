@@ -18,22 +18,26 @@ export default function NewInquiryPage() {
     if (!form.content.trim()) { toast.error('내용을 입력해주세요.'); return }
 
     setLoading(true)
+    try {
+      const res = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
 
-    const res = await fetch('/api/inquiries', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        toast.error(data.error ?? '오류가 발생했습니다.')
+        return
+      }
 
-    if (!res.ok) {
-      const data = await res.json()
-      toast.error(data.error ?? '오류가 발생했습니다.')
+      toast.success('문의가 접수되었습니다.')
+      router.push('/inquiry')
+    } catch {
+      toast.error('네트워크 오류가 발생했습니다.')
+    } finally {
       setLoading(false)
-      return
     }
-
-    toast.success('문의가 접수되었습니다.')
-    router.push('/inquiry')
   }
 
   return (

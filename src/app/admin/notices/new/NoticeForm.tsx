@@ -16,22 +16,27 @@ export function NoticeForm() {
     if (!form.content.trim()) { toast.error('내용을 입력해주세요.'); return }
 
     setLoading(true)
-    const res = await fetch('/api/notices', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
+    try {
+      const res = await fetch('/api/notices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
 
-    if (!res.ok) {
-      const data = await res.json()
-      toast.error(data.error ?? '오류가 발생했습니다.')
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        toast.error(data.error ?? '오류가 발생했습니다.')
+        return
+      }
+
+      toast.success('공지사항이 등록되었습니다.')
+      router.push('/notice')
+      router.refresh()
+    } catch {
+      toast.error('네트워크 오류가 발생했습니다.')
+    } finally {
       setLoading(false)
-      return
     }
-
-    toast.success('공지사항이 등록되었습니다.')
-    router.push('/notice')
-    router.refresh()
   }
 
   return (
