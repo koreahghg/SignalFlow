@@ -30,7 +30,7 @@ class NewsAnalysisResult:
     sentiment: Literal["positive", "negative", "neutral"] = "neutral"
     sentiment_score: float = 0.0           # -1.0(매우부정) ~ 1.0(매우긍정)
     themes: List[str] = field(default_factory=list)  # ["AI", "반도체", ...]
-    impact_score: int = 0                  # 0~25, algorithm/scorer에 주입
+    impact_score: int = 0                  # 0~15, algorithm/scorer에 주입
     reason: str = ""                       # 추천 이유 (한국어 2~3문장)
     news_analysis: str = ""               # 뉴스 분석 요약 (한국어 1~2문장)
 
@@ -61,7 +61,7 @@ _USER_PROMPT_TEMPLATE = """\
       "sentiment": "positive|negative|neutral",
       "sentiment_score": -1.0~1.0 사이 숫자,
       "themes": ["테마1", "테마2"],
-      "impact_score": 0~25 사이 정수,
+      "impact_score": 0~15 사이 정수,
       "reason": "단타 추천 이유 2~3문장 (한국어)",
       "news_analysis": "뉴스 분석 요약 1~2문장 (한국어)"
     }}
@@ -69,10 +69,10 @@ _USER_PROMPT_TEMPLATE = """\
 }}
 
 impact_score 기준:
-  0~ 5: 뉴스 없음 또는 주가 무관
-  6~12: 약한 모멘텀 (일반 공시, 소규모 계약)
- 13~18: 중간 모멘텀 (실적 개선, 테마 수혜)
- 19~25: 강한 모멘텀 (대형 계약 수주, 정책 직접 수혜, 급등 테마 진입)"""
+  0~ 3: 뉴스 없음 또는 주가 무관
+  4~ 7: 약한 모멘텀 (일반 공시, 소규모 계약)
+  8~11: 중간 모멘텀 (실적 개선, 테마 수혜)
+ 12~15: 강한 모멘텀 (대형 계약 수주, 정책 직접 수혜, 급등 테마 진입)"""
 
 
 # ── 인메모리 캐시 ─────────────────────────────────────────────────────────────
@@ -150,7 +150,7 @@ def _fallback_analysis(ticker: str, name: str, news: List[dict]) -> NewsAnalysis
         if any(kw in all_text for kw in kws)
     ]
 
-    impact = min(len(news) * 2 + pos * 3, 25) if pos >= neg else max(0, len(news) * 1 - neg)
+    impact = min(len(news) * 1 + pos * 2, 15) if pos >= neg else max(0, len(news) * 1 - neg * 2)
 
     theme_str = f", 테마: {', '.join(themes)}" if themes else ""
     sentiment_label = {"positive": "긍정", "negative": "부정", "neutral": "중립"}[sentiment]
