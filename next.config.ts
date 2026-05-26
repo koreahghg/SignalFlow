@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['next-auth', '@auth/core', '@auth/core/providers/google'],
   images: {
     remotePatterns: [
       {
