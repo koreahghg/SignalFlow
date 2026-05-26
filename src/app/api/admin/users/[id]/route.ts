@@ -17,41 +17,39 @@ export async function PATCH(
 
   const { id } = await params
   const body = await req.json()
-  const { action, suspendReason, suspendedUntil } = body
+  const { action, suspendReason, suspendedUntil, role } = body
 
   if (action === 'suspend') {
-    const user = await prisma.user.update({
-      where: { id },
-      data: {
-        status: 'suspended',
-        suspendedAt: new Date(),
-        suspendedUntil: suspendedUntil ? new Date(suspendedUntil) : null,
-        suspendReason: suspendReason ?? null,
-      },
-    })
-    return NextResponse.json(user)
+    const until = suspendedUntil ? new Date(suspendedUntil) : null
+    await prisma.$executeRaw`
+      UPDATE "User"
+      SET status = 'suspended',
+          "suspendedAt" = NOW(),
+          "suspendedUntil" = ${until},
+          "suspendReason" = ${suspendReason ?? null}
+      WHERE id = ${id}
+    `
+    return NextResponse.json({ ok: true })
   }
 
   if (action === 'activate') {
-    const user = await prisma.user.update({
-      where: { id },
-      data: {
-        status: 'active',
-        suspendedAt: null,
-        suspendedUntil: null,
-        suspendReason: null,
-      },
-    })
-    return NextResponse.json(user)
+    await prisma.$executeRaw`
+      UPDATE "User"
+      SET status = 'active',
+          "suspendedAt" = NULL,
+          "suspendedUntil" = NULL,
+          "suspendReason" = NULL
+      WHERE id = ${id}
+    `
+    return NextResponse.json({ ok: true })
   }
 
   if (action === 'setRole') {
-    const { role } = body
     if (!['user', 'admin'].includes(role)) {
       return NextResponse.json({ error: '잘못된 역할입니다.' }, { status: 400 })
     }
-    const user = await prisma.user.update({ where: { id }, data: { role } })
-    return NextResponse.json(user)
+    await prisma.$executeRaw`UPDATE "User" SET role = ${role} WHERE id = ${id}`
+    return NextResponse.json({ ok: true })
   }
 
   return NextResponse.json({ error: '알 수 없는 액션입니다.' }, { status: 400 })

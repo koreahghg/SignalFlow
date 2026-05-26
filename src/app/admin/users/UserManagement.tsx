@@ -17,7 +17,7 @@ type User = {
   suspendReason: string | null
   lastLoginAt: string | null
   createdAt: string
-  _count: { trades: number }
+  tradeCount: number
 }
 
 function formatDate(iso: string | null) {
@@ -36,7 +36,7 @@ function Avatar({ user }: { user: User }) {
   )
 }
 
-function SuspendForm({ user, onDone }: { user: User; onDone: (updated: User) => void }) {
+function SuspendForm({ user, onDone }: { user: User; onDone: (reason: string | null, until: string | null) => void }) {
   const [reason, setReason] = useState('')
   const [until, setUntil] = useState('')
   const [loading, setLoading] = useState(false)
@@ -51,9 +51,8 @@ function SuspendForm({ user, onDone }: { user: User; onDone: (updated: User) => 
         body: JSON.stringify({ action: 'suspend', suspendReason: reason || null, suspendedUntil: until || null }),
       })
       if (!res.ok) { toast.error('정지 처리에 실패했습니다.'); return }
-      const updated = await res.json()
       toast.success(`${user.name ?? user.email} 계정을 정지했습니다.`)
-      onDone(updated)
+      onDone(reason || null, until || null)
     } catch {
       toast.error('네트워크 오류가 발생했습니다.')
     } finally {
@@ -108,9 +107,8 @@ function UserRow({ user: initial }: { user: User }) {
         body: JSON.stringify({ action: 'activate' }),
       })
       if (!res.ok) { toast.error('처리에 실패했습니다.'); return }
-      const updated = await res.json()
       toast.success(`${user.name ?? user.email} 계정을 복구했습니다.`)
-      setUser(updated)
+      setUser((u) => ({ ...u, status: 'active', suspendedAt: null, suspendedUntil: null, suspendReason: null }))
     } catch {
       toast.error('네트워크 오류가 발생했습니다.')
     } finally {
@@ -128,9 +126,8 @@ function UserRow({ user: initial }: { user: User }) {
         body: JSON.stringify({ action: 'setRole', role: newRole }),
       })
       if (!res.ok) { toast.error('처리에 실패했습니다.'); return }
-      const updated = await res.json()
       toast.success(`역할을 ${newRole === 'admin' ? '관리자' : '일반 사용자'}로 변경했습니다.`)
-      setUser(updated)
+      setUser((u) => ({ ...u, role: newRole }))
     } catch {
       toast.error('네트워크 오류가 발생했습니다.')
     } finally {
@@ -179,7 +176,7 @@ function UserRow({ user: initial }: { user: User }) {
             </div>
             <div>
               <p className="text-muted-foreground">거래 수</p>
-              <p>{user._count.trades}건</p>
+              <p>{user.tradeCount}건</p>
             </div>
             {isSuspended && (
               <>
@@ -235,8 +232,14 @@ function UserRow({ user: initial }: { user: User }) {
           {showSuspendForm && (
             <SuspendForm
               user={user}
-              onDone={(updated) => {
-                setUser(updated)
+              onDone={(reason, until) => {
+                setUser((u) => ({
+                  ...u,
+                  status: 'suspended',
+                  suspendedAt: new Date().toISOString(),
+                  suspendedUntil: until ? new Date(until).toISOString() : null,
+                  suspendReason: reason,
+                }))
                 setShowSuspendForm(false)
               }}
             />

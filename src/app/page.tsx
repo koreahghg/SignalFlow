@@ -84,10 +84,10 @@ export default async function HomePage() {
   const [session, recentNotice] = await Promise.all([auth(), getRecentNotice()])
 
   if (session?.user?.id) {
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { status: true, suspendedUntil: true, suspendReason: true },
-    })
+    const rows = await prisma.$queryRaw<{ status: string; suspendedUntil: Date | null; suspendReason: string | null }[]>`
+      SELECT status, "suspendedUntil", "suspendReason" FROM "User" WHERE id = ${session.user.id} LIMIT 1
+    `
+    const user = rows[0] ?? null
 
     const isSuspended =
       user?.status === 'suspended' &&
