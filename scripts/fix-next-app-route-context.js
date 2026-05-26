@@ -1,19 +1,16 @@
 // Next.js 16에서 app-route/vendored/contexts/ 디렉토리가 없어서
-// Turbopack이 API 라우트 빌드 시 app-router-context.js를 찾지 못하는 문제를 수정.
-// app-page의 동일 파일로 re-export.
+// Turbopack이 API 라우트 빌드 시 각종 컨텍스트 파일을 찾지 못하는 문제를 수정.
+// app-page/vendored/contexts/ 의 모든 .js 파일을 app-route로 복사.
 const fs = require('fs')
 const path = require('path')
 
-const dir = path.join(
-  __dirname,
-  '..',
-  'node_modules/next/dist/server/route-modules/app-route/vendored/contexts'
-)
-const file = path.join(dir, 'app-router-context.js')
+const src = path.join(__dirname, '..', 'node_modules/next/dist/server/route-modules/app-page/vendored/contexts')
+const dest = path.join(__dirname, '..', 'node_modules/next/dist/server/route-modules/app-route/vendored/contexts')
 
-fs.mkdirSync(dir, { recursive: true })
-fs.writeFileSync(
-  file,
-  `"use strict";\nmodule.exports = require("../../../app-page/vendored/contexts/app-router-context");\n`
-)
-console.log('✔ Created app-route/vendored/contexts/app-router-context.js')
+fs.mkdirSync(dest, { recursive: true })
+
+const files = fs.readdirSync(src)
+for (const file of files) {
+  fs.copyFileSync(path.join(src, file), path.join(dest, file))
+}
+console.log(`✔ Copied ${files.length} files to app-route/vendored/contexts/`)
