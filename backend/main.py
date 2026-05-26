@@ -1,4 +1,5 @@
 import asyncio
+import os
 import uuid
 from contextlib import asynccontextmanager
 from datetime import date as date_type
@@ -37,12 +38,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="SignalFlow API", version="0.1.0", lifespan=lifespan)
 
+_origins = ["http://localhost:3000"]
+if _frontend_url := os.getenv("FRONTEND_URL"):
+    _origins.append(_frontend_url.rstrip("/"))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        # TODO: 배포 후 실제 도메인 추가
-    ],
+    allow_origins=_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
