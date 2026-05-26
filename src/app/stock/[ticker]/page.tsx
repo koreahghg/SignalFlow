@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn, formatDate, formatKRW, formatPercent } from '@/lib/utils'
+import { checkSuspension } from '@/lib/checkSuspension'
 import type { StockRecommendation } from '@/types/stock'
 import StockChart from '@/components/stock/StockChart'
 
@@ -55,6 +56,7 @@ type Props = {
 }
 
 export default async function StockDetailPage({ params }: Props) {
+  await checkSuspension()
   const { ticker } = await params
 
   // TODO: API 연동 → const recs = await getStockRecommendations(ticker)

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { cn, formatDate, formatKRW } from '@/lib/utils'
+import { checkSuspension } from '@/lib/checkSuspension'
 import type { DailyRecommendation } from '@/types/stock'
 
 const riskConfig = {
@@ -90,7 +91,8 @@ const mockHistory: DailyRecommendation[] = [
   },
 ]
 
-export default function HistoryPage() {
+export default async function HistoryPage() {
+  await checkSuspension()
   return (
     <div className="space-y-8">
       {/* 헤더 */}
