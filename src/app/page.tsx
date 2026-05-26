@@ -5,6 +5,8 @@ import { NewNoticeBanner } from '@/components/dashboard/NewNoticeBanner'
 import { StockCard } from '@/components/stock/StockCard'
 import { formatDate } from '@/lib/utils'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/auth'
+import { ShieldAlert } from 'lucide-react'
 import type { StockRecommendation } from '@/types/stock'
 
 const getRecentNotice = unstable_cache(
@@ -79,7 +81,42 @@ const mockStocks: StockRecommendation[] = [
 const today = new Date().toISOString().split('T')[0]
 
 export default async function HomePage() {
-  const recentNotice = await getRecentNotice()
+  const [session, recentNotice] = await Promise.all([auth(), getRecentNotice()])
+
+  if (session?.user?.id) {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { status: true, suspendedUntil: true, suspendReason: true },
+    })
+
+    const isSuspended =
+      user?.status === 'suspended' &&
+      (!user.suspendedUntil || new Date(user.suspendedUntil) > new Date())
+
+    if (isSuspended) {
+      return (
+        <div className="space-y-6">
+          {recentNotice && <NewNoticeBanner id={recentNotice.id} title={recentNotice.title} />}
+          <MarketStatus />
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-red-500/30 bg-red-500/5 px-6 py-16 text-center">
+            <ShieldAlert className="mb-4 h-12 w-12 text-red-400" />
+            <h2 className="text-xl font-bold text-red-400">서비스 이용이 정지되었습니다</h2>
+            {user.suspendedUntil ? (
+              <p className="mt-2 text-sm text-muted-foreground">
+                정지 해제일: {new Date(user.suspendedUntil).toLocaleDateString('ko-KR')}
+              </p>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">관리자에 의해 영구 정지된 계정입니다.</p>
+            )}
+            {user.suspendReason && (
+              <p className="mt-1 text-sm text-muted-foreground">사유: {user.suspendReason}</p>
+            )}
+            <p className="mt-4 text-xs text-muted-foreground">문의사항은 고객센터로 연락해주세요.</p>
+          </div>
+        </div>
+      )
+    }
+  }
 
   const avgUpside =
     mockStocks.reduce((sum, s) => {

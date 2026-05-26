@@ -8,15 +8,20 @@ datasource db {
 }
 
 model User {
-  id         String      @id @default(cuid())
-  email      String      @unique
-  name       String?
-  image      String?
-  role       String      @default("user")
-  provider   String?
-  providerId String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id              String      @id @default(cuid())
+  email           String      @unique
+  name            String?
+  image           String?
+  role            String      @default("user")
+  provider        String?
+  providerId      String?
+  status          String      @default("active")
+  suspendedAt     DateTime?
+  suspendedUntil  DateTime?
+  suspendReason   String?
+  lastLoginAt     DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
   trades     Trade[]
   watchlists Watchlist[]
