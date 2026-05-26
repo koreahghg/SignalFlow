@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { Shield, ShieldOff, UserCog, ChevronDown, ChevronUp } from 'lucide-react'
@@ -41,7 +41,7 @@ function SuspendForm({ user, onDone }: { user: User; onDone: (updated: User) => 
   const [until, setUntil] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault()
     setLoading(true)
     try {
@@ -247,9 +247,19 @@ function UserRow({ user: initial }: { user: User }) {
   )
 }
 
-export function UserManagement({ users }: { users: User[] }) {
+export function UserManagement() {
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'all' | 'active' | 'suspended'>('all')
+
+  useEffect(() => {
+    fetch('/api/admin/users')
+      .then((r) => r.json())
+      .then((data) => setUsers(data))
+      .catch(() => toast.error('사용자 목록을 불러오지 못했습니다.'))
+      .finally(() => setLoading(false))
+  }, [])
 
   const filtered = users.filter((u) => {
     const matchSearch = !search || u.email.includes(search) || (u.name ?? '').includes(search)
@@ -259,8 +269,14 @@ export function UserManagement({ users }: { users: User[] }) {
 
   const suspendedCount = users.filter((u) => u.status === 'suspended').length
 
+  if (loading) {
+    return <p className="py-8 text-center text-sm text-muted-foreground">불러오는 중...</p>
+  }
+
   return (
     <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">전체 {users.length}명 · 정지 {suspendedCount}명</p>
+
       {/* 필터 + 검색 */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <input
