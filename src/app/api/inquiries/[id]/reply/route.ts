@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 const ADMIN_EMAIL = 'koreahghg@gmail.com'
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

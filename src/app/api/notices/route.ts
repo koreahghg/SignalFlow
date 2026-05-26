@@ -3,6 +3,8 @@ import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 const ADMIN_EMAIL = 'koreahghg@gmail.com'
 
 export async function GET() {
