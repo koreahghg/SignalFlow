@@ -154,44 +154,60 @@ export default function StatsPage() {
     return MOCK_TRADES.filter((t) => t.date >= cutoff)
   }, [period])
 
-  const total = trades.length
-  const wins = trades.filter((t) => t.exitType !== 'stop_loss')
-  const losses = trades.filter((t) => t.exitType === 'stop_loss')
-  const target2 = trades.filter((t) => t.exitType === 'target2')
-  const target1 = trades.filter((t) => t.exitType === 'target1')
-  const successRate = total ? (wins.length / total) * 100 : 0
-  const avgWinReturn = avg(wins.map((t) => t.returnPct))
-  const avgLossReturn = avg(losses.map((t) => t.returnPct))
-  const avgAllReturn = avg(trades.map((t) => t.returnPct))
+  const {
+    total, wins, losses, target2, target1,
+    successRate, avgWinReturn, avgLossReturn, avgAllReturn,
+    themeStats, riskStats, weekdayStats,
+    best3, worst3, maxStreak, maxLossStreak, recentTrades,
+  } = useMemo(() => {
+    const total = trades.length
+    const wins = trades.filter((t) => t.exitType !== 'stop_loss')
+    const losses = trades.filter((t) => t.exitType === 'stop_loss')
+    const target2 = trades.filter((t) => t.exitType === 'target2')
+    const target1 = trades.filter((t) => t.exitType === 'target1')
+    const successRate = total ? (wins.length / total) * 100 : 0
+    const avgWinReturn = avg(wins.map((t) => t.returnPct))
+    const avgLossReturn = avg(losses.map((t) => t.returnPct))
+    const avgAllReturn = avg(trades.map((t) => t.returnPct))
 
-  const themes = [...new Set(trades.map((t) => t.theme))].sort()
-  const themeStats = themes.map((th) => {
-    const g = trades.filter((t) => t.theme === th)
-    const w = g.filter((t) => t.exitType !== 'stop_loss')
-    return { theme: th, total: g.length, wins: w.length, rate: g.length ? (w.length / g.length) * 100 : 0 }
-  }).sort((a, b) => b.rate - a.rate)
+    const themes = [...new Set(trades.map((t) => t.theme))].sort()
+    const themeStats = themes.map((th) => {
+      const g = trades.filter((t) => t.theme === th)
+      const w = g.filter((t) => t.exitType !== 'stop_loss')
+      return { theme: th, total: g.length, wins: w.length, rate: g.length ? (w.length / g.length) * 100 : 0 }
+    }).sort((a, b) => b.rate - a.rate)
 
-  const riskStats = (['low', 'medium', 'high'] as const).map((r) => {
-    const g = trades.filter((t) => t.risk === r)
-    const w = g.filter((t) => t.exitType !== 'stop_loss')
-    return { risk: r, total: g.length, wins: w.length, rate: g.length ? (w.length / g.length) * 100 : 0 }
-  })
+    const riskStats = (['low', 'medium', 'high'] as const).map((r) => {
+      const g = trades.filter((t) => t.risk === r)
+      const w = g.filter((t) => t.exitType !== 'stop_loss')
+      return { risk: r, total: g.length, wins: w.length, rate: g.length ? (w.length / g.length) * 100 : 0 }
+    })
 
-  const weekdayStats = WEEKDAYS.map((day, i) => {
-    const g = trades.filter((t) => new Date(t.date).getDay() - 1 === i)
-    const w = g.filter((t) => t.exitType !== 'stop_loss')
-    return { day, total: g.length, rate: g.length ? (w.length / g.length) * 100 : 0 }
-  })
+    const weekdayStats = WEEKDAYS.map((day, i) => {
+      const g = trades.filter((t) => new Date(t.date).getDay() - 1 === i)
+      const w = g.filter((t) => t.exitType !== 'stop_loss')
+      return { day, total: g.length, rate: g.length ? (w.length / g.length) * 100 : 0 }
+    })
 
-  const sorted = [...trades].sort((a, b) => b.returnPct - a.returnPct)
-  const best3 = sorted.slice(0, 3)
-  const worst3 = sorted.slice(-3).reverse()
+    const sorted = [...trades].sort((a, b) => b.returnPct - a.returnPct)
+    const best3 = sorted.slice(0, 3)
+    const worst3 = sorted.slice(-3).reverse()
 
-  let maxStreak = 0, maxLossStreak = 0, curW = 0, curL = 0
-  for (const t of [...trades].sort((a, b) => a.date.localeCompare(b.date))) {
-    if (t.exitType !== 'stop_loss') { curW++; curL = 0; maxStreak = Math.max(maxStreak, curW) }
-    else { curL++; curW = 0; maxLossStreak = Math.max(maxLossStreak, curL) }
-  }
+    let maxStreak = 0, maxLossStreak = 0, curW = 0, curL = 0
+    for (const t of [...trades].sort((a, b) => a.date.localeCompare(b.date))) {
+      if (t.exitType !== 'stop_loss') { curW++; curL = 0; maxStreak = Math.max(maxStreak, curW) }
+      else { curL++; curW = 0; maxLossStreak = Math.max(maxLossStreak, curL) }
+    }
+
+    const recentTrades = [...trades].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 15)
+
+    return {
+      total, wins, losses, target2, target1,
+      successRate, avgWinReturn, avgLossReturn, avgAllReturn,
+      themeStats, riskStats, weekdayStats,
+      best3, worst3, maxStreak, maxLossStreak, recentTrades,
+    }
+  }, [trades])
 
   const rateColor = (r: number) => r >= 65 ? 'text-emerald-400' : r >= 50 ? 'text-yellow-400' : 'text-red-400'
   const barColor = (r: number) => r >= 65 ? 'bg-emerald-500' : r >= 50 ? 'bg-yellow-400' : 'bg-red-500'
@@ -383,9 +399,7 @@ export default function StatsPage() {
           <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-3">
             <p className="text-sm font-semibold">최근 거래 내역</p>
             <div className="divide-y divide-border/40">
-              {[...trades]
-                .sort((a, b) => b.date.localeCompare(a.date))
-                .slice(0, 15)
+              {recentTrades
                 .map((t, i) => {
                   const isWin = t.exitType !== 'stop_loss'
                   return (

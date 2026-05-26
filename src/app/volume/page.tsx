@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { VolumeSurgeCard } from '@/components/volume/VolumeSurgeCard'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -57,13 +57,22 @@ export default function VolumePage() {
     fetchAlerts()
   }, [fetchAlerts])
 
-  const filtered = alerts.filter(
-    a => levelFilter === 'all' || a.alertLevel === levelFilter
+  const filtered = useMemo(
+    () => alerts.filter(a => levelFilter === 'all' || a.alertLevel === levelFilter),
+    [alerts, levelFilter]
   )
 
-  const counts = alerts.reduce<Record<AlertLevel, number>>(
-    (acc, a) => { acc[a.alertLevel] = (acc[a.alertLevel] ?? 0) + 1; return acc },
-    { critical: 0, alert: 0, caution: 0, watch: 0 }
+  const counts = useMemo(
+    () => alerts.reduce<Record<AlertLevel, number>>(
+      (acc, a) => { acc[a.alertLevel] = (acc[a.alertLevel] ?? 0) + 1; return acc },
+      { critical: 0, alert: 0, caution: 0, watch: 0 }
+    ),
+    [alerts]
+  )
+
+  const sortedAlerts = useMemo(
+    () => [...filtered].sort((a, b) => levelOrder[a.alertLevel] - levelOrder[b.alertLevel] || b.surgeScore - a.surgeScore),
+    [filtered]
   )
 
   return (
@@ -180,9 +189,7 @@ export default function VolumePage() {
       {/* 결과 */}
       {!loading && filtered.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered
-            .sort((a, b) => levelOrder[a.alertLevel] - levelOrder[b.alertLevel] || b.surgeScore - a.surgeScore)
-            .map(alert => (
+          {sortedAlerts.map(alert => (
               <VolumeSurgeCard key={alert.ticker} alert={alert} />
             ))}
         </div>
