@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  turbopack: {
+    resolveAlias: {
+      'next/dist/server/route-modules/app-route/vendored/contexts/app-router-context':
+        'next/dist/server/route-modules/app-page/vendored/contexts/app-router-context',
+    },
+  },
 };
 
 export default nextConfig;
