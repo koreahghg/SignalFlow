@@ -258,8 +258,14 @@ export function UserManagement() {
 
   useEffect(() => {
     fetch('/api/admin/users')
-      .then((r) => r.json())
-      .then((data) => setUsers(data))
+      .then(async (r) => {
+        const data = await r.json()
+        if (!r.ok) {
+          toast.error(data?.error ?? `오류 (${r.status})`)
+          return
+        }
+        setUsers(Array.isArray(data) ? data : [])
+      })
       .catch(() => toast.error('사용자 목록을 불러오지 못했습니다.'))
       .finally(() => setLoading(false))
   }, [])
