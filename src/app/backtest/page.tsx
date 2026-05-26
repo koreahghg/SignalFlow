@@ -53,9 +53,9 @@ function defaultDates() {
 function EquityCurve({ data }: { data: EquityPoint[] }) {
   if (data.length < 2) return null
 
-  const W = 800
-  const H = 180
-  const PL = 52, PR = 56, PT = 16, PB = 24
+  const W = 420
+  const H = 160
+  const PL = 46, PR = 50, PT = 12, PB = 20
   const iW = W - PL - PR
   const iH = H - PT - PB
 
@@ -107,7 +107,7 @@ function EquityCurve({ data }: { data: EquityPoint[] }) {
             y={toY(v)}
             textAnchor="end"
             dominantBaseline="middle"
-            fontSize="10"
+            fontSize="11"
             fill="#71717a"
           >
             {v >= 0 ? '+' : ''}
@@ -138,7 +138,7 @@ function EquityCurve({ data }: { data: EquityPoint[] }) {
         x={toX(data.length - 1) + 5}
         y={toY(last)}
         dominantBaseline="middle"
-        fontSize="11"
+        fontSize="12"
         fontWeight="bold"
         fill={stroke}
       >
@@ -147,10 +147,10 @@ function EquityCurve({ data }: { data: EquityPoint[] }) {
       </text>
 
       {/* X axis: first / last date */}
-      <text x={PL} y={H - 4} fontSize="10" fill="#71717a">
+      <text x={PL} y={H - 4} fontSize="11" fill="#71717a">
         {data[0].date.slice(5)}
       </text>
-      <text x={W - PR} y={H - 4} textAnchor="end" fontSize="10" fill="#71717a">
+      <text x={W - PR} y={H - 4} textAnchor="end" fontSize="11" fill="#71717a">
         {data[data.length - 1].date.slice(5)}
       </text>
     </svg>
