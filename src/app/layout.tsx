@@ -1,9 +1,10 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist_Mono } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
 import { Providers } from '@/components/layout/Providers'
 import { Header } from '@/components/layout/Header'
+import { BottomNav } from '@/components/layout/BottomNav'
 
 const gmarketSans = localFont({
   src: [
@@ -25,6 +26,12 @@ export const metadata: Metadata = {
   description: '매일 장 시작 전 단타 추천 종목 3개를 제공합니다.',
 }
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,7 +42,8 @@ export default function RootLayout({
       <body className="min-h-screen bg-background text-foreground antialiased">
         <Providers>
           <Header />
-          <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
+          <main className="mx-auto max-w-5xl px-4 pt-4 pb-24 sm:py-6">{children}</main>
+          <BottomNav />
         </Providers>
       </body>
     </html>

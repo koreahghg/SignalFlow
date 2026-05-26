@@ -16,43 +16,45 @@ export async function Header() {
           </Link>
           <ConnectionStatus />
         </div>
-        <nav className="flex items-center gap-4 text-sm text-muted-foreground">
-          <Link href="/" className="transition-colors hover:text-foreground">
-            오늘 추천
-          </Link>
-          <Link href="/history" className="transition-colors hover:text-foreground">
-            추천 내역
-          </Link>
-          <Link href="/stats" className="transition-colors hover:text-foreground">
-            통계
-          </Link>
-          <Link href="/backtest" className="transition-colors hover:text-foreground">
-            백테스트
-          </Link>
-          <Link href="/volume" className="transition-colors hover:text-foreground">
-            거래량
-          </Link>
-          <Link href="/notice" className="transition-colors hover:text-foreground">
-            공지사항
-          </Link>
-          <Link href="/inquiry" className="transition-colors hover:text-foreground">
-            문의
-          </Link>
+        <div className="flex items-center gap-3">
+          {/* 데스크탑 전용 링크 */}
+          <nav className="hidden sm:flex items-center gap-4 text-sm text-muted-foreground">
+            <Link href="/" className="transition-colors hover:text-foreground">
+              오늘 추천
+            </Link>
+            <Link href="/history" className="transition-colors hover:text-foreground">
+              추천 내역
+            </Link>
+            <Link href="/stats" className="transition-colors hover:text-foreground">
+              통계
+            </Link>
+            <Link href="/backtest" className="transition-colors hover:text-foreground">
+              백테스트
+            </Link>
+            <Link href="/volume" className="transition-colors hover:text-foreground">
+              거래량
+            </Link>
+            <Link href="/notice" className="transition-colors hover:text-foreground">
+              공지사항
+            </Link>
+            <Link href="/inquiry" className="transition-colors hover:text-foreground">
+              문의
+            </Link>
+          </nav>
 
-          {session?.user && (
-            <Link href="/mypage" className="flex items-center gap-2 border-l border-border pl-4">
-              {session.user.image && (
-                <Image
-                  src={session.user.image}
-                  alt={session.user.name ?? ''}
-                  width={28}
-                  height={28}
-                  className="rounded-full transition-opacity hover:opacity-80"
-                />
-              )}
+          {/* 아바타: 항상 표시 */}
+          {session?.user?.image && (
+            <Link href="/mypage" className="flex items-center sm:border-l sm:border-border sm:pl-4">
+              <Image
+                src={session.user.image}
+                alt={session.user.name ?? ''}
+                width={28}
+                height={28}
+                className="rounded-full transition-opacity hover:opacity-80"
+              />
             </Link>
           )}
-        </nav>
+        </div>
       </div>
       <Separator />
     </header>

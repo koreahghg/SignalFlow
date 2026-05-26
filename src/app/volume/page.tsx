@@ -67,7 +67,7 @@ export default function VolumePage() {
   )
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 space-y-6">
+    <div className="space-y-6">
       {/* 헤더 */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
