@@ -11,11 +11,9 @@ const dir = path.join(
 )
 const file = path.join(dir, 'app-router-context.js')
 
-if (!fs.existsSync(file)) {
-  fs.mkdirSync(dir, { recursive: true })
-  fs.writeFileSync(
-    file,
-    `"use strict";\nmodule.exports = require("../../app-page/vendored/contexts/app-router-context");\n`
-  )
-  console.log('✔ Created missing app-route/vendored/contexts/app-router-context.js')
-}
+fs.mkdirSync(dir, { recursive: true })
+fs.writeFileSync(
+  file,
+  `"use strict";\nmodule.exports = require("../../../app-page/vendored/contexts/app-router-context");\n`
+)
+console.log('✔ Created app-route/vendored/contexts/app-router-context.js')
