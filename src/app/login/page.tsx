@@ -3,7 +3,7 @@ import { signIn } from '@/auth'
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+    <div className="flex min-h-[calc(100svh-4rem-4rem)] sm:min-h-[calc(100svh-4rem)] items-center justify-center">
       <div className="w-full max-w-sm space-y-6 rounded-xl border border-border bg-card p-8">
         <div className="space-y-1 text-center">
           <h1 className="text-2xl font-bold tracking-tight">SignalFlow</h1>
@@ -18,7 +18,7 @@ export default function LoginPage() {
         >
           <button
             type="submit"
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-background px-4 py-3.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground touch-manipulation"
           >
             <GoogleIcon />
             Google로 로그인

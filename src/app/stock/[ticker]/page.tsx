@@ -158,23 +158,17 @@ export default async function StockDetailPage({ params }: Props) {
       {recs.length > 1 && (
         <div className="space-y-3">
           <h2 className="text-sm font-medium text-muted-foreground">추천 이력</h2>
-          <div className="overflow-hidden rounded-lg border border-border">
-            {recs.map((rec, i) => (
-              <div
-                key={rec.id}
-                className={cn(
-                  'flex items-center gap-4 px-4 py-3',
-                  i < recs.length - 1 && 'border-b border-border'
-                )}
-              >
-                <span className="w-24 shrink-0 text-xs text-muted-foreground">
+          <div className="divide-y divide-border overflow-hidden rounded-lg border border-border">
+            {recs.map((rec) => (
+              <div key={rec.id} className="flex items-center gap-3 px-4 py-3">
+                <span className="shrink-0 font-mono text-xs text-muted-foreground">
                   {formatDate(rec.date)}
                 </span>
                 <span className="text-sm font-medium">{formatKRW(rec.entryPrice)}</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="hidden flex-1 truncate text-xs text-muted-foreground sm:block">
                   손절 {formatKRW(rec.stopLossPrice)} · 1차 {formatKRW(rec.target1Price)}
                 </span>
-                <div className="ml-auto">
+                <div className="ml-auto shrink-0">
                   <Badge variant="outline" className={cn('text-xs', riskConfig[rec.riskLevel].className)}>
                     {riskConfig[rec.riskLevel].label}
                   </Badge>

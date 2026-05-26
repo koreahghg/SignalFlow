@@ -104,8 +104,8 @@ export function AllocationCalculator({ stocks }: Props) {
 
             <p className="text-sm leading-relaxed text-muted-foreground">{result.strategy}</p>
 
-            <div className="overflow-hidden rounded-lg border border-border">
-              <table className="w-full text-sm">
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <table className="w-full min-w-[360px] text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/20">
                     <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">종목</th>

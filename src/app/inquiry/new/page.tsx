@@ -54,7 +54,7 @@ export default function NewInquiryPage() {
                 key={cat}
                 type="button"
                 onClick={() => setForm((f) => ({ ...f, category: cat }))}
-                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                className={`min-h-10 rounded-full border px-4 py-2 text-sm font-medium transition-colors touch-manipulation ${
                   form.category === cat
                     ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border bg-card text-muted-foreground hover:border-border/60 hover:text-foreground'
@@ -103,14 +103,14 @@ export default function NewInquiryPage() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground touch-manipulation"
           >
             취소
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-opacity disabled:opacity-50"
+            className="flex-1 rounded-lg bg-primary py-3 text-sm font-medium text-primary-foreground transition-opacity disabled:opacity-50 touch-manipulation"
           >
             {loading ? '제출 중...' : '문의 제출'}
           </button>
