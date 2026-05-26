@@ -7,6 +7,105 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id         String      @id @default(cuid())
+  email      String      @unique
+  name       String?
+  image      String?
+  role       String      @default("user")
+  provider   String?
+  providerId String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  trades     Trade[]
+  watchlists Watchlist[]
+  backtests  Backtest[]
+}
+
+model Recommendation {
+  id             String   @id @default(cuid())
+  date           DateTime
+  stockCode      String
+  stockName      String
+  entryPrice     Int
+  stopLossPrice  Int
+  targetPrice1   Int
+  targetPrice2   Int
+  forceSellTime  String
+  reason         String
+  volumeAnalysis String?
+  newsAnalysis   String?
+  riskLevel      String   @default("medium")
+  strategy       String?
+  score          Int?
+  status         String   @default("active")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  trades Trade[]
+}
+
+model Trade {
+  id               String          @id @default(cuid())
+  userId           String
+  recommendationId String?
+  stockCode        String
+  stockName        String
+  entryPrice       Int
+  entryQuantity    Int
+  exitPrice        Int?
+  exitQuantity     Int?
+  exitTime         DateTime?
+  pnl              Int?
+  pnlRate          Float?
+  status           String          @default("open")
+  notes            String?
+  tradedAt         DateTime        @default(now())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  user           User            @relation(fields: [userId], references: [id])
+  recommendation Recommendation? @relation(fields: [recommendationId], references: [id])
+}
+
+model Watchlist {
+  id         String   @id @default(cuid())
+  userId     String
+  stockCode  String
+  stockName  String
+  alertPrice Int?
+  memo       String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, stockCode])
+}
+
+model Backtest {
+  id             String   @id @default(cuid())
+  userId         String?
+  strategyName   String
+  startDate      DateTime
+  endDate        DateTime
+  initialCapital Int
+  finalCapital   Int?
+  totalReturn    Float?
+  winRate        Float?
+  totalTrades    Int?
+  winningTrades  Int?
+  losingTrades   Int?
+  maxDrawdown    Float?
+  parameters     Json?
+  results        Json?
+  status         String   @default("pending")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id])
+}
+
 model Notice {
   id        String   @id @default(cuid())
   title     String
