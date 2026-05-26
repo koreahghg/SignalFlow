@@ -35,7 +35,11 @@ export default function StockChart({ ticker, entryPrice, stopLossPrice, target1P
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<ReturnType<typeof import('lightweight-charts').createChart> | null>(null)
   const observerRef = useRef<ResizeObserver | null>(null)
+  const pricesRef = useRef({ entryPrice, stopLossPrice, target1Price, target2Price })
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+
+  // 매 렌더마다 ref 최신화 (effect 재실행 없이)
+  pricesRef.current = { entryPrice, stopLossPrice, target1Price, target2Price }
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -138,10 +142,11 @@ export default function StockChart({ ticker, entryPrice, stopLossPrice, target1P
         })
         ma20Series.setData(calcMA(candles, 20) as any)
 
-        // 추천 가격선
-        if (entryPrice) {
+        // 추천 가격선 — 초기화 시점의 최신 값을 ref에서 읽음
+        const prices = pricesRef.current
+        if (prices.entryPrice) {
           candleSeries.createPriceLine({
-            price: entryPrice,
+            price: prices.entryPrice,
             color: '#3b82f6',
             lineWidth: 1,
             lineStyle: LineStyle.Dashed,
@@ -149,9 +154,9 @@ export default function StockChart({ ticker, entryPrice, stopLossPrice, target1P
             title: '진입가',
           })
         }
-        if (stopLossPrice) {
+        if (prices.stopLossPrice) {
           candleSeries.createPriceLine({
-            price: stopLossPrice,
+            price: prices.stopLossPrice,
             color: '#ef4444',
             lineWidth: 1,
             lineStyle: LineStyle.Dashed,
@@ -159,9 +164,9 @@ export default function StockChart({ ticker, entryPrice, stopLossPrice, target1P
             title: '손절',
           })
         }
-        if (target1Price) {
+        if (prices.target1Price) {
           candleSeries.createPriceLine({
-            price: target1Price,
+            price: prices.target1Price,
             color: '#22c55e',
             lineWidth: 1,
             lineStyle: LineStyle.Dashed,
@@ -169,9 +174,9 @@ export default function StockChart({ ticker, entryPrice, stopLossPrice, target1P
             title: '1차 익절',
           })
         }
-        if (target2Price) {
+        if (prices.target2Price) {
           candleSeries.createPriceLine({
-            price: target2Price,
+            price: prices.target2Price,
             color: '#10b981',
             lineWidth: 1,
             lineStyle: LineStyle.Dashed,
@@ -205,7 +210,7 @@ export default function StockChart({ ticker, entryPrice, stopLossPrice, target1P
       chartRef.current?.remove()
       chartRef.current = null
     }
-  }, [ticker, entryPrice, stopLossPrice, target1Price, target2Price])
+  }, [ticker]) // 가격은 pricesRef로 읽으므로 ticker 변경 시에만 재초기화
 
   return (
     <div className="relative w-full rounded-lg border border-border bg-[#09090b]">
