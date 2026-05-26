@@ -1,7 +1,8 @@
 'use client'
 
+import { useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Home, Clock, BarChart2, TrendingUp, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +16,12 @@ const NAV_ITEMS = [
 
 export function BottomNav() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  // 앱 로드 시 모든 탭 라우트를 라우터 캐시에 미리 올림
+  useEffect(() => {
+    NAV_ITEMS.forEach(({ href }) => router.prefetch(href))
+  }, [router])
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm sm:hidden">
