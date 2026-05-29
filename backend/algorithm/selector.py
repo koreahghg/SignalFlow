@@ -8,6 +8,7 @@ from typing import Dict, List, Optional
 
 from .signals import Candle, analyze_signals
 from .scorer import calculate_score, ScoreResult
+from .atr_calculator import calc_atr_pct
 from .price_calculator import (
     calc_entry_price,
     calc_stop_loss,
@@ -46,7 +47,10 @@ class Recommendation:
 def select_top3(candidates: List[Dict]) -> List[Recommendation]:
     """
     candidates 형식:
-      [{ ticker, name, candles: List[Candle], volume_rank: int, news_score: int }]
+      [{
+        ticker, name, candles: List[Candle], volume_rank: int,
+        news_analysis: Optional[NewsAnalysisResult]  (없으면 None)
+      }]
 
     패턴이 감지된 종목만 점수를 매기고, 상위 3개를 반환한다.
     """
@@ -69,7 +73,11 @@ def select_top3(candidates: List[Dict]) -> List[Recommendation]:
         if signal.pattern == "none":
             continue
 
-        scored.append(calculate_score(signal, news_score=c.get("news_score", 0)))
+        scored.append(calculate_score(
+            signal,
+            news_analysis=c.get("news_analysis"),
+            atr_pct=calc_atr_pct(candles),
+        ))
 
     scored.sort(key=lambda x: x.total_score, reverse=True)
 
@@ -93,10 +101,12 @@ def select_top3(candidates: List[Dict]) -> List[Recommendation]:
             name=s.name,
             score=s.total_score,
             score_breakdown={
-                "volume_amount": s.volume_amount_score,
-                "volume_surge": s.volume_surge_score,
-                "technical": s.technical_score,
-                "news": s.news_score,
+                "volume": s.volume_factor.score,
+                "news": s.news_factor.score,
+                "volatility": s.volatility_factor.score,
+                "theme": s.theme_factor.score,
+                "supply_demand": s.supply_demand_factor.score,
+                "total": s.total_score,
             },
             pattern=s.pattern,
             entry_price=levels.entry,

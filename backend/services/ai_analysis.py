@@ -25,12 +25,32 @@ from typing import Dict, List, Literal, Optional
 
 # ── 결과 타입 ──────────────────────────────────────────────────────────────────
 
+# 핫 테마 목록 (scorer와 동일 기준)
+_HOT_THEMES_SET = {"AI", "반도체", "2차전지", "바이오", "방산", "원전", "로봇"}
+
+
+def _calc_theme_strength(themes: List[str]) -> int:
+    """themes 목록 → theme_strength 점수 (0~20, scorer와 동일 공식)."""
+    n = len(themes)
+    if n == 0:
+        base = 2
+    elif n == 1:
+        base = 8
+    elif n == 2:
+        base = 14
+    else:
+        base = 18
+    bonus = 2 if any(t in _HOT_THEMES_SET for t in themes) else 0
+    return min(base + bonus, 20)
+
+
 @dataclass
 class NewsAnalysisResult:
     sentiment: Literal["positive", "negative", "neutral"] = "neutral"
     sentiment_score: float = 0.0           # -1.0(매우부정) ~ 1.0(매우긍정)
     themes: List[str] = field(default_factory=list)  # ["AI", "반도체", ...]
     impact_score: int = 0                  # 0~15, algorithm/scorer에 주입
+    theme_strength: int = 0               # 0~20, scorer 테마 요인 미리 계산
     reason: str = ""                       # 추천 이유 (한국어 2~3문장)
     news_analysis: str = ""               # 뉴스 분석 요약 (한국어 1~2문장)
 
@@ -127,6 +147,7 @@ def _fallback_analysis(ticker: str, name: str, news: List[dict]) -> NewsAnalysis
             sentiment_score=0.0,
             themes=[],
             impact_score=0,
+            theme_strength=_calc_theme_strength([]),
             reason=f"{name}에 관련 뉴스가 없어 기술적 분석 기반으로 추천합니다.",
             news_analysis="관련 뉴스 없음",
         )
@@ -160,6 +181,7 @@ def _fallback_analysis(ticker: str, name: str, news: List[dict]) -> NewsAnalysis
         sentiment_score=round(score, 2),
         themes=themes,
         impact_score=impact,
+        theme_strength=_calc_theme_strength(themes),
         reason=f"{name} — {sentiment_label} 뉴스 {len(news)}건 감지{theme_str}.",
         news_analysis=f"뉴스 {len(news)}건 키워드 분석: {sentiment_label}",
     )
@@ -188,11 +210,13 @@ def _items_to_results(items: List[dict], stocks: List[dict]) -> Dict[str, NewsAn
     for s in stocks:
         item = item_map.get(s["ticker"])
         if item:
+            _themes = item.get("themes", [])
             results[s["ticker"]] = NewsAnalysisResult(
                 sentiment=item.get("sentiment", "neutral"),
                 sentiment_score=float(item.get("sentiment_score", 0.0)),
-                themes=item.get("themes", []),
+                themes=_themes,
                 impact_score=int(item.get("impact_score", 0)),
+                theme_strength=_calc_theme_strength(_themes),
                 reason=item.get("reason", ""),
                 news_analysis=item.get("news_analysis", ""),
             )

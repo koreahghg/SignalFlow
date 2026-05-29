@@ -29,6 +29,9 @@ const config: Record<WSStatus, { dot: string; label: string; text: string }> = {
 
 export function ConnectionStatus({ className }: { className?: string }) {
   const { status } = useWebSocketContext()
+
+  if (status === 'disconnected') return null
+
   const { dot, label, text } = config[status]
 
   return (

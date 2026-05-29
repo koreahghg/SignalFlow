@@ -72,13 +72,12 @@ def run(
     print("  4/4 패턴 분석 및 점수 계산 중...")
     candidates = []
     for s in valid_stocks:
-        ai = ai_map.get(s["ticker"])
         candidates.append({
             "ticker": s["ticker"],
             "name": s["name"],
             "candles": candle_map[s["ticker"]],
             "volume_rank": s["volume_rank"],
-            "news_score": ai.impact_score if ai else 0,
+            "news_analysis": ai_map.get(s["ticker"]),
         })
 
     recs = select_top3(candidates)
@@ -118,10 +117,9 @@ def _print_result(
         print(f"      1차익절: {r.target1_price:>9,}원  ({t1_pct:+.1f}%)")
         print(f"      2차익절: {r.target2_price:>9,}원  ({t2_pct:+.1f}%)")
         print(f"      강제매도: {r.force_sell_time}")
-        print(f"      점수 분해: 거래대금 {r.score_breakdown['volume_amount']} + "
-              f"거래량급증 {r.score_breakdown['volume_surge']} + "
-              f"기술 {r.score_breakdown['technical']} + "
-              f"뉴스AI {r.score_breakdown['news']}")
+        bd = r.score_breakdown
+        print(f"      점수 분해: 거래량 {bd['volume']}/25 | 뉴스 {bd['news']}/20 | "
+              f"변동성 {bd['volatility']}/15 | 테마 {bd['theme']}/20 | 수급 {bd['supply_demand']}/20")
 
         if ai:
             sentiment_label = {"positive": "긍정", "negative": "부정", "neutral": "중립"}[ai.sentiment]
@@ -137,6 +135,7 @@ def _save_to_db(
     ai_map: dict[str, NewsAnalysisResult],
 ) -> None:
     try:
+        import json
         import uuid
         from db import SessionLocal
         import models
@@ -144,6 +143,15 @@ def _save_to_db(
         db = SessionLocal()
         for r in recs:
             ai = ai_map.get(r.ticker)
+            bd = r.score_breakdown
+            score_breakdown_json = json.dumps({
+                "volume": bd.get("volume", 0),
+                "news": bd.get("news", 0),
+                "volatility": bd.get("volatility", 0),
+                "theme": bd.get("theme", 0),
+                "supplyDemand": bd.get("supply_demand", 0),
+                "total": bd.get("total", 0),
+            })
             rec = models.StockRecommendation(
                 id=str(uuid.uuid4()),
                 date=date_iso,
@@ -159,6 +167,7 @@ def _save_to_db(
                 volume_analysis=f"거래량 {r.volume_ratio:.1f}배 (20일 평균 대비)",
                 news_analysis=ai.news_analysis if ai and ai.news_analysis else "",
                 risk_level=r.risk_level,
+                score_breakdown=score_breakdown_json,
             )
             db.add(rec)
         db.commit()

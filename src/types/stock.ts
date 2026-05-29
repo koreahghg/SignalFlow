@@ -1,5 +1,30 @@
 export type RiskLevel = 'low' | 'medium' | 'high'
 
+export type FactorLabel = '우수' | '양호' | '보통' | '미흡'
+
+export type FactorScore = {
+  score: number
+  maxScore: number
+  label: FactorLabel
+  reason: string
+}
+
+export type ScoreBreakdown = {
+  volume: number        // max 25
+  news: number          // max 20
+  volatility: number    // max 15
+  theme: number         // max 20
+  supplyDemand: number  // max 20
+  total: number         // 0-100
+  grade: string         // "S" | "A" | "B" | "C" | "D"
+  // Per-factor detail (optional — populated when full breakdown is available)
+  volumeFactor?: FactorScore
+  newsFactor?: FactorScore
+  volatilityFactor?: FactorScore
+  themeFactor?: FactorScore
+  supplyDemandFactor?: FactorScore
+}
+
 export type StockRecommendation = {
   id: string
   date: string // YYYY-MM-DD
@@ -15,6 +40,7 @@ export type StockRecommendation = {
   volumeAnalysis: string
   newsAnalysis: string
   riskLevel: RiskLevel
+  scoreBreakdown?: ScoreBreakdown
 }
 
 export type DailyRecommendation = {

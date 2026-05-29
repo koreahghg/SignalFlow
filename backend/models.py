@@ -19,6 +19,7 @@ class StockRecommendation(Base):
     volume_analysis = Column(Text, nullable=False)
     news_analysis = Column(Text, nullable=False)
     risk_level = Column(String, nullable=False)    # low | medium | high
+    score_breakdown = Column(Text, nullable=True)  # JSON: {volume, news, volatility, theme, supplyDemand, total, grade}
 
     __table_args__ = (
         Index("ix_recommendations_date", "date"),

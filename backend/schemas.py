@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Literal, Dict, List
+import json
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Literal, Dict, List, Optional
 
 
 class StockRecommendationSchema(BaseModel):
@@ -19,6 +20,17 @@ class StockRecommendationSchema(BaseModel):
     volumeAnalysis: str = Field(validation_alias="volume_analysis")
     newsAnalysis: str = Field(validation_alias="news_analysis")
     riskLevel: str = Field(validation_alias="risk_level")
+    scoreBreakdown: Optional[Dict] = Field(default=None, validation_alias="score_breakdown")
+
+    @field_validator("scoreBreakdown", mode="before")
+    @classmethod
+    def parse_score_breakdown(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except (json.JSONDecodeError, TypeError):
+                return None
+        return v
 
 
 class StockRecommendationCreate(BaseModel):
