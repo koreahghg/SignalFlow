@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/auth'
 
 type StockInput = {
   ticker: string
@@ -29,6 +30,11 @@ const SYSTEM_PROMPT = `당신은 한국 주식 단타 매매 자금 배분 전�
 반드시 JSON 형식으로만 응답하세요.`
 
 export async function POST(req: NextRequest) {
+  const session = await auth()
+  if (!session) {
+    return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  }
+
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
     return NextResponse.json({ error: 'GROQ_API_KEY가 설정되지 않았습니다.' }, { status: 500 })
@@ -41,6 +47,10 @@ export async function POST(req: NextRequest) {
 
   if (!totalAmount || totalAmount < 10000) {
     return NextResponse.json({ error: '최소 10,000원 이상 입력해주세요.' }, { status: 400 })
+  }
+
+  if (!Array.isArray(stocks) || stocks.length > 10) {
+    return NextResponse.json({ error: '종목은 최대 10개까지 가능합니다.' }, { status: 400 })
   }
 
   const riskLabel = { low: '저위험', medium: '중위험', high: '고위험' }
