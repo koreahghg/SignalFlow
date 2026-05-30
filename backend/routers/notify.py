@@ -5,12 +5,13 @@ from sqlalchemy.orm import Session
 
 import models
 from db import get_db
+from deps import require_internal_secret
 from services.discord_notifier import send_daily_recommendations
 
 router = APIRouter(prefix="/api/notify", tags=["Notify"])
 
 
-@router.post("/discord")
+@router.post("/discord", dependencies=[Depends(require_internal_secret)])
 def notify_discord(db: Session = Depends(get_db)):
     """오늘의 추천 종목을 Discord webhook으로 전송."""
     today = date_type.today().isoformat()
@@ -33,7 +34,7 @@ def notify_discord(db: Session = Depends(get_db)):
     return {"sent": len(stocks), "date": today}
 
 
-@router.post("/discord/test")
+@router.post("/discord/test", dependencies=[Depends(require_internal_secret)])
 def notify_discord_test():
     """Discord 연결 테스트용 메시지 전송."""
     import os
