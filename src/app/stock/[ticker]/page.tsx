@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn, formatDate, formatKRW, formatPercent } from '@/lib/utils'
 import { checkSuspension } from '@/lib/checkSuspension'
+import { getStockRecommendations } from '@/lib/api'
 import type { StockRecommendation } from '@/types/stock'
 import StockChart from '@/components/stock/StockChart'
 
@@ -11,44 +12,6 @@ const riskConfig = {
   low: { label: '저위험', className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
   medium: { label: '중위험', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
   high: { label: '고위험', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
-}
-
-// TODO: API 연동 후 제거
-const mockStockHistory: Record<string, StockRecommendation[]> = {
-  '005930': [
-    {
-      id: '1',
-      date: '2026-05-24',
-      ticker: '005930',
-      name: '삼성전자',
-      entryPrice: 75000,
-      stopLossPrice: 73500,
-      target1Price: 77000,
-      target2Price: 79000,
-      forceSellTime: '14:00',
-      reason: '반도체 업황 개선 기대감 + 외국인 순매수 3일 연속. 전일 거래대금 1조 돌파 후 눌림목 진입 구간.',
-      theme: '반도체',
-      volumeAnalysis: '전일 거래대금 1.2조, 5일 평균 대비 2.3배. 기관 매수 집중.',
-      newsAnalysis: 'HBM4 수주 기대 뉴스 + AI 서버 수요 확대 보도. 외신 긍정적 언급.',
-      riskLevel: 'medium',
-    },
-    {
-      id: '7',
-      date: '2026-05-20',
-      ticker: '005930',
-      name: '삼성전자',
-      entryPrice: 73000,
-      stopLossPrice: 71500,
-      target1Price: 75000,
-      target2Price: 77000,
-      forceSellTime: '14:00',
-      reason: '52주 저점 근처 반등 시도. 외국인 4일 연속 순매수.',
-      theme: '반도체',
-      volumeAnalysis: '전일 거래대금 8,700억. 5일 평균 대비 1.6배.',
-      newsAnalysis: '파운드리 수주 확대 가능성 보도.',
-      riskLevel: 'low',
-    },
-  ],
 }
 
 type Props = {
@@ -59,8 +22,13 @@ export default async function StockDetailPage({ params }: Props) {
   await checkSuspension()
   const { ticker } = await params
 
-  // TODO: API 연동 → const recs = await getStockRecommendations(ticker)
-  const recs = mockStockHistory[ticker] ?? []
+  let recs: StockRecommendation[] = []
+  try {
+    recs = await getStockRecommendations(ticker)
+  } catch {
+    // FastAPI 서버 미실행 또는 오류 시 빈 배열로 처리
+  }
+
   const latest = recs[0]
 
   if (!latest) {
