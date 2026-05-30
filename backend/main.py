@@ -15,6 +15,7 @@ from sqlalchemy import distinct
 import models
 import schemas
 from db import engine, get_db
+from deps import require_internal_secret
 from routers import stock as stock_router
 from routers import volume as volume_router
 from routers import backtest as backtest_router
@@ -131,7 +132,8 @@ def get_stock_candles(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/recommendations", response_model=schemas.StockRecommendationSchema, status_code=201)
+@app.post("/api/recommendations", response_model=schemas.StockRecommendationSchema, status_code=201,
+          dependencies=[Depends(require_internal_secret)])
 def create_recommendation(body: schemas.StockRecommendationCreate, db: Session = Depends(get_db)):
     rec = models.StockRecommendation(
         id=str(uuid.uuid4()),
