@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { CheckCircle, Clock, ChevronDown, ChevronUp, Plus } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type Inquiry = {
   id: string
@@ -75,9 +76,20 @@ export default function InquiryPage() {
 
       {/* 목록 */}
       {loading ? (
-        <div className="space-y-3">
+        <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl border border-border bg-card" />
+            <div key={i} className="flex items-center gap-4 px-5 py-4">
+              <Skeleton className="h-4 w-4 rounded-full shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-5 w-14 rounded-full" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </div>
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+              <Skeleton className="h-4 w-4 shrink-0" />
+            </div>
           ))}
         </div>
       ) : inquiries.length === 0 ? (
