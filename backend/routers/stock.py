@@ -14,9 +14,12 @@ router = APIRouter(prefix="/api/kis", tags=["KIS"])
 
 
 def _kis_error(e: Exception) -> HTTPException:
+    import logging
+    logging.getLogger(__name__).error("KIS API 오류: %s", e, exc_info=True)
     msg = str(e)
     status = 503 if "환경변수" in msg or "API 오류" in msg else 502
-    return HTTPException(status_code=status, detail=msg)
+    detail = msg if "환경변수" in msg else "KIS API 요청 중 오류가 발생했습니다."
+    return HTTPException(status_code=status, detail=detail)
 
 
 @router.get("/price/{ticker}")

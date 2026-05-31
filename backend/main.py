@@ -129,7 +129,9 @@ def get_stock_candles(
             for c in candles
         ]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import logging
+        logging.getLogger(__name__).error("캔들 조회 실패: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="데이터 조회 중 오류가 발생했습니다.")
 
 
 @app.post("/api/recommendations", response_model=schemas.StockRecommendationSchema, status_code=201,

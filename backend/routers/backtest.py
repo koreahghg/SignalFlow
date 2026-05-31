@@ -47,7 +47,9 @@ def run_backtest_api(req: schemas.BacktestRequest) -> schemas.BacktestResponse:
     try:
         dataset = build_dataset(req.start_date, req.end_date, req.market)
     except RuntimeError as e:
-        raise HTTPException(503, str(e))
+        import logging
+        logging.getLogger(__name__).error("백테스트 데이터셋 빌드 실패: %s", e, exc_info=True)
+        raise HTTPException(503, "백테스트 데이터 준비 중 오류가 발생했습니다.")
 
     summary = run_backtest(dataset)
 
