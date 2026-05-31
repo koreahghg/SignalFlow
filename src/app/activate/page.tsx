@@ -95,7 +95,7 @@ export default function ActivatePage() {
 
         <p className="text-center text-xs text-muted-foreground">
           코드가 없으신가요?{' '}
-          <a href="mailto:koreahghg@gmail.com" className="underline underline-offset-2 hover:text-foreground">
+          <a href="/inquiry/new" className="underline underline-offset-2 hover:text-foreground">
             관리자에게 문의
           </a>
         </p>
