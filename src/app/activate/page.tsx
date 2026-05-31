@@ -8,7 +8,8 @@ import { useRouter } from 'next/navigation'
 import { KeyRound, ShieldCheck } from 'lucide-react'
 
 export default function ActivatePage() {
-  const { update } = useSession()
+  const session = useSession()
+  const update = session?.update
   const router = useRouter()
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
@@ -33,7 +34,7 @@ export default function ActivatePage() {
         setError(data.error ?? '오류가 발생했습니다.')
         return
       }
-      await update()
+      await update?.()
       router.push('/')
       router.refresh()
     } catch {
