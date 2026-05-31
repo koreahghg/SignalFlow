@@ -28,7 +28,8 @@ export const proxy = auth((req) => {
       if (stillSuspended) return NextResponse.redirect(new URL('/suspended', req.url))
     }
 
-    if (status === 'pending' && pathname !== '/activate' && !pathname.startsWith('/api/')) {
+    const pendingAllowed = ['/activate', '/inquiry', '/notice', '/mypage', '/terms', '/privacy', '/suspended', '/api/']
+    if (status === 'pending' && !pendingAllowed.some((p) => pathname.startsWith(p))) {
       return NextResponse.redirect(new URL('/activate', req.url))
     }
   }
