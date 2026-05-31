@@ -163,14 +163,18 @@ def volume_surge_scan(
             from services.kis_stock import get_volume_rank
             stocks = get_volume_rank(market=market, limit=limit)
         except Exception as e:
-            raise HTTPException(status_code=503, detail=f"KIS API 오류: {e}")
+            import logging
+            logging.getLogger(__name__).error("KIS API 오류: %s", e, exc_info=True)
+            raise HTTPException(status_code=503, detail="거래량 데이터 조회 중 오류가 발생했습니다.")
     else:
         try:
             from services.stock_data import get_top_volume_stocks
             market_map = {"0": "ALL", "1": "KOSPI", "2": "KOSDAQ"}
             stocks = get_top_volume_stocks(limit=limit, market=market_map.get(market, "ALL"))
         except Exception as e:
-            raise HTTPException(status_code=503, detail=f"주가 데이터 조회 오류: {e}")
+            import logging
+            logging.getLogger(__name__).error("주가 데이터 조회 오류: %s", e, exc_info=True)
+            raise HTTPException(status_code=503, detail="거래량 데이터 조회 중 오류가 발생했습니다.")
 
     if not stocks:
         return []
@@ -203,7 +207,9 @@ def volume_surge_detail(ticker: str):
         from services.stock_data import get_daily_candles
         candles = get_daily_candles(ticker, days=21)
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"데이터 조회 오류: {e}")
+        import logging
+        logging.getLogger(__name__).error("데이터 조회 오류: %s", e, exc_info=True)
+        raise HTTPException(status_code=503, detail="데이터 조회 중 오류가 발생했습니다.")
 
     if len(candles) < 5:
         raise HTTPException(status_code=404, detail="데이터 부족")

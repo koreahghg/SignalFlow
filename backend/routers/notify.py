@@ -27,9 +27,13 @@ def notify_discord(db: Session = Depends(get_db)):
     try:
         send_daily_recommendations(stocks)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        import logging
+        logging.getLogger(__name__).error("Discord 알림 설정 오류: %s", e, exc_info=True)
+        raise HTTPException(status_code=400, detail="Discord 알림 설정을 확인해 주세요.")
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Discord 전송 실패: {e}")
+        import logging
+        logging.getLogger(__name__).error("Discord 전송 실패: %s", e, exc_info=True)
+        raise HTTPException(status_code=502, detail="Discord 전송 중 오류가 발생했습니다.")
 
     return {"sent": len(stocks), "date": today}
 
@@ -49,6 +53,8 @@ def notify_discord_test():
             resp = client.post(webhook_url, json={"content": "✅ SignalFlow Discord 연결 테스트 성공!"})
             resp.raise_for_status()
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Discord 전송 실패: {e}")
+        import logging
+        logging.getLogger(__name__).error("Discord 테스트 전송 실패: %s", e, exc_info=True)
+        raise HTTPException(status_code=502, detail="Discord 전송 중 오류가 발생했습니다.")
 
     return {"ok": True}
