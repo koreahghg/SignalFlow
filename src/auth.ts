@@ -37,16 +37,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async jwt({ token, account, profile }) {
       if (account && profile?.email) {
-        const rows = await prisma.$queryRaw<{ id: string }[]>`
-          SELECT id FROM "User" WHERE email = ${profile.email} LIMIT 1
+        const rows = await prisma.$queryRaw<
+          { id: string; status: string; suspendedUntil: Date | null }[]
+        >`
+          SELECT id, status, "suspendedUntil" FROM "User" WHERE email = ${profile.email} LIMIT 1
         `
-        if (rows[0]) token.dbId = rows[0].id
+        if (rows[0]) {
+          token.dbId = rows[0].id
+          token.status = rows[0].status
+          token.suspendedUntil = rows[0].suspendedUntil?.toISOString() ?? null
+        }
       }
       return token
     },
     session({ session, token }) {
       if (token.sub) session.user.id = token.sub
       if (token.dbId) session.user.id = token.dbId as string
+      if (token.status) session.user.status = token.status
+      if (token.suspendedUntil !== undefined) session.user.suspendedUntil = token.suspendedUntil
       return session
     },
   },

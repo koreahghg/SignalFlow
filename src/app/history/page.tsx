@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { cn, formatDate, formatKRW } from '@/lib/utils'
-import { checkSuspension } from '@/lib/checkSuspension'
 import { getHistory } from '@/lib/api'
 import type { DailyRecommendation } from '@/types/stock'
 
@@ -18,8 +17,6 @@ const rankColors = [
 ]
 
 export default async function HistoryPage() {
-  await checkSuspension()
-
   let history: DailyRecommendation[] = []
   try {
     history = await getHistory()

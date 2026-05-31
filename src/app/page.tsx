@@ -5,7 +5,6 @@ import { NewNoticeBanner } from '@/components/dashboard/NewNoticeBanner'
 import { StockCard } from '@/components/stock/StockCard'
 import { formatDate } from '@/lib/utils'
 import { prisma } from '@/lib/prisma'
-import { checkSuspension } from '@/lib/checkSuspension'
 import { getTodayRecommendations } from '@/lib/api'
 import type { StockRecommendation } from '@/types/stock'
 
@@ -29,7 +28,6 @@ const getRecentNotice = unstable_cache(
 const today = new Date().toISOString().split('T')[0]
 
 export default async function HomePage() {
-  await checkSuspension()
   const recentNotice = await getRecentNotice()
 
   let stocks: StockRecommendation[] = []
