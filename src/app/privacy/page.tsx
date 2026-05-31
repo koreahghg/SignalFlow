@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-const EFFECTIVE_DATE = '2026년 5월 26일'
+const EFFECTIVE_DATE = '2026년 5월 31일'
 
 export default function PrivacyPage() {
   return (
@@ -90,7 +90,9 @@ export default function PrivacyPage() {
           headers={['수탁 업체', '위탁 업무', '보유 기간']}
           rows={[
             ['Google LLC', 'OAuth 인증 처리', '회원 탈퇴 시'],
-            ['Vercel Inc.', '서비스 호스팅', '계약 종료 시'],
+            ['Vercel Inc.', '서비스 호스팅 (프론트엔드)', '계약 종료 시'],
+            ['Railway Technologies Inc.', '서비스 호스팅 (백엔드 API)', '계약 종료 시'],
+            ['Supabase Inc.', '데이터베이스 호스팅', '계약 종료 시'],
           ]}
         />
       </Section>

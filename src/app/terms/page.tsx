@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-const EFFECTIVE_DATE = '2026년 5월 26일'
+const EFFECTIVE_DATE = '2026년 5월 31일'
 
 const sections = [
   {
