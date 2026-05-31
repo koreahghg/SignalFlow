@@ -1,4 +1,3 @@
-import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -7,8 +6,7 @@ import { cn, formatDate, formatKRW, formatPercent } from '@/lib/utils'
 import { getStockRecommendations } from '@/lib/api'
 import type { StockRecommendation } from '@/types/stock'
 import { riskConfig } from '@/lib/stockConfig'
-
-const StockChart = dynamic(() => import('@/components/stock/StockChart'), { ssr: false })
+import { StockChart } from '@/components/stock/StockChartWrapper'
 
 type Props = {
   params: Promise<{ ticker: string }>
