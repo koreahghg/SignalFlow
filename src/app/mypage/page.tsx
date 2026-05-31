@@ -99,9 +99,16 @@ export default async function MyPage() {
           </Link>
           <Link
             href="/admin/inquiries"
-            className="flex items-center justify-between px-4 py-3.5 text-sm transition-colors hover:bg-primary/10"
+            className="flex items-center justify-between border-b border-primary/10 px-4 py-3.5 text-sm transition-colors hover:bg-primary/10"
           >
             <span className="font-medium">문의 관리</span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
+          <Link
+            href="/admin/access-codes"
+            className="flex items-center justify-between px-4 py-3.5 text-sm transition-colors hover:bg-primary/10"
+          >
+            <span className="font-medium">초대 코드 관리</span>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </Link>
         </div>

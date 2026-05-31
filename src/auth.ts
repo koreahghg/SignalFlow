@@ -12,7 +12,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (!user.email) return false
       try {
         await prisma.$executeRaw`
-          INSERT INTO "User" (id, email, name, image, provider, "providerId", "lastLoginAt", "createdAt", "updatedAt")
+          INSERT INTO "User" (id, email, name, image, provider, "providerId", "lastLoginAt", "createdAt", "updatedAt", status)
           VALUES (
             ${user.id ?? account?.providerAccountId ?? user.email},
             ${user.email},
@@ -22,7 +22,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             ${account?.providerAccountId ?? null},
             NOW(),
             NOW(),
-            NOW()
+            NOW(),
+            'pending'
           )
           ON CONFLICT (email) DO UPDATE
           SET name = EXCLUDED.name,
@@ -35,7 +36,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return true
     },
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, trigger }) {
       if (account && profile?.email) {
         const rows = await prisma.$queryRaw<
           { id: string; status: string; suspendedUntil: Date | null }[]
@@ -44,6 +45,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         `
         if (rows[0]) {
           token.dbId = rows[0].id
+          token.status = rows[0].status
+          token.suspendedUntil = rows[0].suspendedUntil?.toISOString() ?? null
+        }
+      }
+      if (trigger === 'update' && token.dbId) {
+        const rows = await prisma.$queryRaw<
+          { status: string; suspendedUntil: Date | null }[]
+        >`
+          SELECT status, "suspendedUntil" FROM "User" WHERE id = ${token.dbId as string} LIMIT 1
+        `
+        if (rows[0]) {
           token.status = rows[0].status
           token.suspendedUntil = rows[0].suspendedUntil?.toISOString() ?? null
         }

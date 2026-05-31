@@ -15,7 +15,7 @@ model User {
   role            String      @default("user")
   provider        String?
   providerId      String?
-  status          String      @default("active")
+  status          String      @default("pending")
   suspendedAt     DateTime?
   suspendedUntil  DateTime?
   suspendReason   String?
@@ -27,8 +27,19 @@ model User {
   watchlists Watchlist[]
   backtests  Backtest[]
   inquiries  Inquiry[]
+  accessCode AccessCode?
 
   @@index([status])
+}
+
+model AccessCode {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  usedBy    String?   @unique
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User?     @relation(fields: [usedBy], references: [id])
 }
 
 model Recommendation {
