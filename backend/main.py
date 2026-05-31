@@ -21,6 +21,7 @@ from routers import volume as volume_router
 from routers import backtest as backtest_router
 from routers import websocket as ws_router
 from routers import notify as notify_router
+from routers import test as test_router
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -55,6 +56,7 @@ app.include_router(volume_router.router)
 app.include_router(backtest_router.router)
 app.include_router(ws_router.router)
 app.include_router(notify_router.router)
+app.include_router(test_router.router)
 
 
 @app.get("/api/recommendations/today", response_model=list[schemas.StockRecommendationSchema])
