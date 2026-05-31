@@ -53,8 +53,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     session({ session, token }) {
       if (token.sub) session.user.id = token.sub
       if (token.dbId) session.user.id = token.dbId as string
-      if (token.status) session.user.status = token.status
-      if (token.suspendedUntil !== undefined) session.user.suspendedUntil = token.suspendedUntil
+      if (token.status) session.user.status = token.status as string
+      if (token.suspendedUntil !== undefined) session.user.suspendedUntil = token.suspendedUntil as string | null
       return session
     },
   },
