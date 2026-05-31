@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'SignalFlow — 주식 단타 추천',
+  title: 'SignalFlow',
   description: '매일 장 시작 전 단타 추천 종목 3개를 제공합니다.',
 }
 
