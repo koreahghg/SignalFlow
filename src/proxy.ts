@@ -28,10 +28,6 @@ export const proxy = auth((req) => {
       if (stillSuspended) return NextResponse.redirect(new URL('/suspended', req.url))
     }
 
-    const pendingAllowed = ['/activate', '/inquiry', '/notice', '/mypage', '/terms', '/privacy', '/suspended', '/api/']
-    if (status === 'pending' && !pendingAllowed.some((p) => pathname.startsWith(p))) {
-      return NextResponse.redirect(new URL('/activate', req.url))
-    }
   }
 
   // 서버 컴포넌트에서 현재 pathname을 읽을 수 있도록 헤더로 전달

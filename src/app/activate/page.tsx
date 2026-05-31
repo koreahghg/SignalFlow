@@ -3,19 +3,14 @@
 export const dynamic = 'force-dynamic'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { KeyRound, ShieldCheck } from 'lucide-react'
 
 export default function ActivatePage() {
-  const session = useSession()
-  const update = session?.update
-  const router = useRouter()
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault()
     if (code.trim().length !== 6) {
       setError('6자리 코드를 입력해주세요.')
@@ -34,9 +29,7 @@ export default function ActivatePage() {
         setError(data.error ?? '오류가 발생했습니다.')
         return
       }
-      await update?.()
-      router.push('/')
-      router.refresh()
+      window.location.href = '/'
     } catch {
       setError('네트워크 오류가 발생했습니다.')
     } finally {
