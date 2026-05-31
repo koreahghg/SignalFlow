@@ -1,10 +1,14 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist_Mono } from 'next/font/google'
 import localFont from 'next/font/local'
+import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import './globals.css'
 import { Providers } from '@/components/layout/Providers'
 import { Header } from '@/components/layout/Header'
 import { BottomNav } from '@/components/layout/BottomNav'
+import { auth } from '@/auth'
+import { prisma } from '@/lib/prisma'
 
 const gmarketSans = localFont({
   src: [
@@ -32,11 +36,27 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
-export default function RootLayout({
+const PUBLIC_PATHS = ['/login', '/activate', '/suspended', '/terms', '/privacy']
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const headersList = await headers()
+  const pathname = headersList.get('x-pathname') ?? '/'
+
+  if (!PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
+    const session = await auth()
+    if (session?.user?.id) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { status: true },
+      })
+      if (user?.status === 'pending') redirect('/activate')
+    }
+  }
+
   return (
     <html lang="ko" className={`${gmarketSans.variable} ${geistMono.variable} dark`}>
       <body className="min-h-screen bg-background text-foreground antialiased">

@@ -32,6 +32,11 @@ export const proxy = auth((req) => {
       return NextResponse.redirect(new URL('/activate', req.url))
     }
   }
+
+  // 서버 컴포넌트에서 현재 pathname을 읽을 수 있도록 헤더로 전달
+  const requestHeaders = new Headers(req.headers)
+  requestHeaders.set('x-pathname', pathname)
+  return NextResponse.next({ request: { headers: requestHeaders } })
 })
 
 export const config = {
