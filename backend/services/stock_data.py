@@ -13,7 +13,7 @@ from __future__ import annotations
 import os
 import sys
 import warnings
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import List, Optional
 
 warnings.filterwarnings("ignore")
@@ -26,6 +26,16 @@ except ImportError:
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from algorithm.signals import Candle
+
+_CACHE: dict = {}
+
+def _cached(key: str, ttl: int, fn, *args, **kwargs):
+    entry = _CACHE.get(key)
+    if entry and datetime.now() < entry["expires"]:
+        return entry["value"]
+    value = fn(*args, **kwargs)
+    _CACHE[key] = {"value": value, "expires": datetime.now() + timedelta(seconds=ttl)}
+    return value
 
 
 def _require_fdr() -> None:
@@ -43,11 +53,7 @@ def _last_weekday(d: Optional[date] = None) -> date:
 
 # ── 거래대금 상위 종목 ─────────────────────────────────────────────────────────
 
-def get_top_volume_stocks(
-    target_date: Optional[str] = None,
-    limit: int = 20,
-    market: str = "KOSPI",
-) -> List[dict]:
+def _fetch_top_volume_stocks(target_date, limit, market) -> List[dict]:
     """
     거래대금 상위 종목 조회.
 
@@ -86,9 +92,19 @@ def get_top_volume_stocks(
     return result
 
 
+def get_top_volume_stocks(
+    target_date: Optional[str] = None,
+    limit: int = 20,
+    market: str = "KOSPI",
+) -> List[dict]:
+    key = f"top_volume:{market}:{limit}:{target_date or _last_weekday().isoformat()}"
+    return _cached(key, ttl=1800, fn=_fetch_top_volume_stocks,
+                   target_date=target_date, limit=limit, market=market)
+
+
 # ── 일봉 캔들 데이터 ──────────────────────────────────────────────────────────
 
-def get_daily_candles(
+def _fetch_daily_candles(
     ticker: str,
     days: int = 60,
     end_date: Optional[str] = None,
@@ -131,6 +147,16 @@ def get_daily_candles(
             trading_value=close * volume,  # FDR에 거래대금 없음 → 근사값
         ))
     return candles
+
+
+def get_daily_candles(
+    ticker: str,
+    days: int = 60,
+    end_date: Optional[str] = None,
+) -> List[Candle]:
+    key = f"candles:{ticker}:{days}:{end_date or _last_weekday().isoformat()}"
+    return _cached(key, ttl=3600, fn=_fetch_daily_candles,
+                   ticker=ticker, days=days, end_date=end_date)
 
 
 # ── 뉴스 조회 ─────────────────────────────────────────────────────────────────

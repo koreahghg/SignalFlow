@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -5,21 +6,14 @@ import { Separator } from '@/components/ui/separator'
 import { cn, formatKRW } from '@/lib/utils'
 import type { StockRecommendation } from '@/types/stock'
 import { LivePrice } from '@/components/stock/LivePrice'
-
-const riskConfig = {
-  low: { label: '저위험', className: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400' },
-  medium: { label: '중위험', className: 'border-yellow-500/40 bg-yellow-500/10 text-yellow-400' },
-  high: { label: '고위험', className: 'border-red-500/40 bg-red-500/10 text-red-400' },
-}
-
-const rankColors = ['text-yellow-400', 'text-slate-400', 'text-amber-600']
+import { riskConfig, rankTextColors } from '@/lib/stockConfig'
 
 type Props = {
   stock: StockRecommendation
   rank: number
 }
 
-export function StockCard({ stock, rank }: Props) {
+export const StockCard = memo(function StockCard({ stock, rank }: Props) {
   const risk = riskConfig[stock.riskLevel]
   const upside1 = ((stock.target1Price - stock.entryPrice) / stock.entryPrice) * 100
   const upside2 = ((stock.target2Price - stock.entryPrice) / stock.entryPrice) * 100
@@ -31,7 +25,7 @@ export function StockCard({ stock, rank }: Props) {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <span className={cn('text-sm font-black tabular-nums', rankColors[rank - 1] ?? 'text-muted-foreground')}>
+            <span className={cn('text-sm font-black tabular-nums', rankTextColors[rank - 1] ?? 'text-muted-foreground')}>
               #{rank}
             </span>
             <Link href={`/stock/${stock.ticker}`} className="min-w-0 group">
@@ -132,4 +126,4 @@ export function StockCard({ stock, rank }: Props) {
       </CardContent>
     </Card>
   )
-}
+})

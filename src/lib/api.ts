@@ -5,7 +5,7 @@ import type {
   BacktestResult,
 } from '@/types/stock'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
 export async function getTodayRecommendations(): Promise<StockRecommendation[]> {
   const res = await fetch(`${API_BASE}/api/recommendations/today`)

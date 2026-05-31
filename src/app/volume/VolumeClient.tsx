@@ -5,8 +5,7 @@ import { VolumeSurgeCard } from '@/components/volume/VolumeSurgeCard'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { VolumeAlert, AlertLevel } from '@/types/volume'
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+import { API_BASE } from '@/lib/api'
 
 const MARKET_OPTIONS = [
   { value: '0', label: '전체' },

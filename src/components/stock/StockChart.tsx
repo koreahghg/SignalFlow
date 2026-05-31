@@ -29,7 +29,7 @@ function calcMA(candles: CandleBar[], period: number) {
     .filter((x): x is { time: string; value: number } => x !== null)
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+import { API_BASE } from '@/lib/api'
 
 export default function StockChart({ ticker, entryPrice, stopLossPrice, target1Price, target2Price }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)

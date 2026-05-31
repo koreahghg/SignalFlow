@@ -80,22 +80,27 @@ def get_by_date(date: str, db: Session = Depends(get_db)):
 
 @app.get("/api/recommendations/history", response_model=list[schemas.DailyRecommendationSchema])
 def get_history(db: Session = Depends(get_db)):
-    dates = (
+    from collections import defaultdict
+    recent_dates_sq = (
         db.query(models.StockRecommendation.date)
         .distinct()
         .order_by(models.StockRecommendation.date.desc())
         .limit(30)
+        .subquery()
+    )
+    stocks = (
+        db.query(models.StockRecommendation)
+        .filter(models.StockRecommendation.date.in_(db.query(recent_dates_sq)))
+        .order_by(models.StockRecommendation.date.desc(), models.StockRecommendation.id)
         .all()
     )
-    result = []
-    for (d,) in dates:
-        stocks = (
-            db.query(models.StockRecommendation)
-            .filter(models.StockRecommendation.date == d)
-            .all()
-        )
-        result.append({"date": d, "stocks": stocks, "marketCondition": ""})
-    return result
+    grouped: dict = defaultdict(list)
+    for s in stocks:
+        grouped[s.date].append(s)
+    return [
+        {"date": d, "stocks": grouped[d], "marketCondition": ""}
+        for d in sorted(grouped, reverse=True)
+    ]
 
 
 @app.get("/api/stocks/{ticker}", response_model=list[schemas.StockRecommendationSchema])

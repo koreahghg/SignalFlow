@@ -1,3 +1,4 @@
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -5,13 +6,9 @@ import { Separator } from '@/components/ui/separator'
 import { cn, formatDate, formatKRW, formatPercent } from '@/lib/utils'
 import { getStockRecommendations } from '@/lib/api'
 import type { StockRecommendation } from '@/types/stock'
-import StockChart from '@/components/stock/StockChart'
+import { riskConfig } from '@/lib/stockConfig'
 
-const riskConfig = {
-  low: { label: '저위험', className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
-  medium: { label: '중위험', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-  high: { label: '고위험', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
-}
+const StockChart = dynamic(() => import('@/components/stock/StockChart'), { ssr: false })
 
 type Props = {
   params: Promise<{ ticker: string }>
