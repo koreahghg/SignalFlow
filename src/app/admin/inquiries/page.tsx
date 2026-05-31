@@ -3,11 +3,11 @@ import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { AdminInquiryList } from './AdminInquiryList'
 
-const ADMIN_EMAIL = 'koreahghg@gmail.com'
+import { isAdmin } from '@/lib/admin'
 
 export default async function AdminInquiriesPage() {
   const session = await auth()
-  if (session?.user?.email !== ADMIN_EMAIL) redirect('/')
+  if (!isAdmin(session?.user?.email)) redirect('/')
 
   const inquiries = await prisma.inquiry.findMany({
     orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],

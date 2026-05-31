@@ -5,6 +5,7 @@ import { auth, signOut } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { ChevronRight, MessageSquare, FileText, Shield } from 'lucide-react'
 import { AccountActions } from './AccountActions'
+import { isAdmin as checkAdmin } from '@/lib/admin'
 
 export default async function MyPage() {
   const session = await auth()
@@ -17,7 +18,7 @@ export default async function MyPage() {
   const inquiryCount = inquiries.length
   const pendingCount = inquiries.filter((i) => i.status === 'pending').length
 
-  const isAdmin = session.user.email === 'koreahghg@gmail.com'
+  const isAdmin = checkAdmin(session.user.email)
 
   const menuItems = [
     {

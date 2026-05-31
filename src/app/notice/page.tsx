@@ -3,8 +3,7 @@ import { unstable_cache } from 'next/cache'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { Pin, Plus } from 'lucide-react'
-
-const ADMIN_EMAIL = 'koreahghg@gmail.com'
+import { isAdmin } from '@/lib/admin'
 
 function formatDate(date: Date | string) {
   return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(date))
@@ -26,8 +25,6 @@ const getNotices = unstable_cache(
 
 export default async function NoticePage() {
   const [notices, session] = await Promise.all([getNotices(), auth()])
-  const isAdmin = session?.user?.email === ADMIN_EMAIL
-
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between">
@@ -36,7 +33,7 @@ export default async function NoticePage() {
           <h1 className="mt-1 text-2xl font-bold tracking-tight">공지사항</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">총 {notices.length}개</p>
         </div>
-        {isAdmin && (
+        {isAdmin(session?.user?.email) && (
           <Link
             href="/admin/notices/new"
             className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"

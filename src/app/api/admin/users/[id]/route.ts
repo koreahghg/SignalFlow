@@ -1,23 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { isAdmin } from '@/lib/admin'
 
 export const dynamic = 'force-dynamic'
-
-const ADMIN_EMAIL = 'koreahghg@gmail.com'
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await auth()
-  if (session?.user?.email !== ADMIN_EMAIL) {
+  if (!isAdmin(session?.user?.email)) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
   const { id } = await params
-  const body = await req.json()
-  const { action, suspendReason, suspendedUntil, role } = body
+  let action: string, suspendReason: string | undefined, suspendedUntil: string | undefined, role: string | undefined
+  try {
+    ;({ action, suspendReason, suspendedUntil, role } = await req.json())
+  } catch {
+    return NextResponse.json({ error: '잘못된 요청 형식입니다.' }, { status: 400 })
+  }
 
   if (action === 'suspend') {
     const until = suspendedUntil ? new Date(suspendedUntil) : null
@@ -45,7 +48,7 @@ export async function PATCH(
   }
 
   if (action === 'setRole') {
-    if (!['user', 'admin'].includes(role)) {
+    if (!role || !['user', 'admin'].includes(role)) {
       return NextResponse.json({ error: '잘못된 역할입니다.' }, { status: 400 })
     }
     await prisma.$executeRaw`UPDATE "User" SET role = ${role} WHERE id = ${id}`

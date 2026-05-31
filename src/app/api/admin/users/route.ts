@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { isAdmin } from '@/lib/admin'
 
 export const dynamic = 'force-dynamic'
 
-const ADMIN_EMAIL = 'koreahghg@gmail.com'
-
 export async function GET() {
   const session = await auth()
-  if (session?.user?.email !== ADMIN_EMAIL) {
+  if (!isAdmin(session?.user?.email)) {
     return NextResponse.json({ error: '권한이 없습니다.' }, { status: 403 })
   }
 
