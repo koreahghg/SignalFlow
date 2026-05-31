@@ -40,9 +40,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'GROQ_API_KEY가 설정되지 않았습니다.' }, { status: 500 })
   }
 
-  const { totalAmount, stocks } = (await req.json()) as {
-    totalAmount: number
-    stocks: StockInput[]
+  let totalAmount: number, stocks: StockInput[]
+  try {
+    ;({ totalAmount, stocks } = (await req.json()) as { totalAmount: number; stocks: StockInput[] })
+  } catch {
+    return NextResponse.json({ error: '잘못된 요청 형식입니다.' }, { status: 400 })
   }
 
   if (!totalAmount || totalAmount < 10000) {

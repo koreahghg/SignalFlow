@@ -20,7 +20,12 @@ export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { category, title, content } = await req.json()
+  let category: string, title: string, content: string
+  try {
+    ;({ category, title, content } = await req.json())
+  } catch {
+    return NextResponse.json({ error: '잘못된 요청 형식입니다.' }, { status: 400 })
+  }
 
   if (!category || !title || !content) {
     return NextResponse.json({ error: '필수 항목을 입력해주세요.' }, { status: 400 })
